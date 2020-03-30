@@ -23,7 +23,7 @@ namespace Library.API
             {
                 try
                 {
-                    var context = scope.ServiceProvider.GetService<LibraryContext>();
+                    var context = scope.ServiceProvider.GetService<ApplicationDbContext>();
                     // for demo purposes, delete the database & migrate on startup so 
                     // we can start with a clean slate
 

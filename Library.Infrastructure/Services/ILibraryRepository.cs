@@ -7,7 +7,9 @@ namespace Library.Infrastructure.Services
 {
     public interface ILibraryRepository
     {
-        IEnumerable<Book> GetBooks(Guid authorId);
+        IEnumerable<Book> GetBooks(IEnumerable<Guid> bookIds);
+        IEnumerable<Book> GetBooks();
+        Book GetBook(Guid bookId);
         Book GetBook(Guid authorId, Guid bookId);
         void AddBook(Book book);
         void UpdateBook(Book book);

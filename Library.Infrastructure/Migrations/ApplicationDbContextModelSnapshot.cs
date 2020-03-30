@@ -4,16 +4,14 @@ using Library.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Library.Infrastructure.Migrations
 {
-    [DbContext(typeof(LibraryContext))]
-    [Migration("20200325121115_InitialMigration")]
-    partial class InitialMigration
+    [DbContext(typeof(ApplicationDbContext))]
+    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
     {
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -23,57 +21,42 @@ namespace Library.Infrastructure.Migrations
 
             modelBuilder.Entity("Library.Domain.Entities.Author", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("AuthorId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("DateOfBirth")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset>("DateOfBirth")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("FirstName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("LastModified")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("LastModifiedBy")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("LastName")
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Id");
+                    b.HasKey("AuthorId");
 
                     b.ToTable("Authors");
 
                     b.HasData(
                         new
                         {
-                            Id = new Guid("3df10afa-150a-43f8-ae05-0a06f743a7c1"),
-                            Created = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            DateOfBirth = new DateTime(1946, 10, 17, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            AuthorId = new Guid("c4581129-9d4c-46bf-b083-22372572b8f0"),
+                            DateOfBirth = new DateTimeOffset(new DateTime(1946, 10, 17, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 1, 0, 0, 0)),
                             FirstName = "Carol",
                             LastName = "S. Dweck"
                         },
                         new
                         {
-                            Id = new Guid("8dc98c87-e225-4337-9f17-5da395469f5a"),
-                            Created = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            DateOfBirth = new DateTime(1943, 3, 26, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            AuthorId = new Guid("c8bdd85d-a573-4480-ba1a-06316463cf8f"),
+                            DateOfBirth = new DateTimeOffset(new DateTime(1943, 3, 26, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             FirstName = "Robert",
                             LastName = "Upshur Woodward"
                         },
                         new
                         {
-                            Id = new Guid("52696061-03d1-41ad-bd44-1091223f748e"),
-                            Created = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            DateOfBirth = new DateTime(1944, 2, 14, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            AuthorId = new Guid("f6204176-7cce-4db6-9353-de2048f4642e"),
+                            DateOfBirth = new DateTimeOffset(new DateTime(1944, 2, 14, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             FirstName = "Carl",
                             LastName = "Bernstein"
                         });
@@ -81,7 +64,7 @@ namespace Library.Infrastructure.Migrations
 
             modelBuilder.Entity("Library.Domain.Entities.Book", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("BookId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
@@ -103,21 +86,21 @@ namespace Library.Infrastructure.Migrations
                     b.Property<string>("Title")
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Id");
+                    b.HasKey("BookId");
 
                     b.ToTable("Books");
 
                     b.HasData(
                         new
                         {
-                            Id = new Guid("66afd4c7-35dd-4cfd-b79c-9ca78de0eb4d"),
+                            BookId = new Guid("86cfaf88-ac90-4915-80c3-d61eb7c37064"),
                             Created = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Dweck explains why it’s not just our abilities and talent that bring us success–but whether we approach them with a fixed or growth mindset. She makes clear why praising intelligence and ability doesn’t foster self-esteem and lead to accomplishment, but may actually jeopardize success. With the right mindset, we can motivate our kids and help them to raise their grades, as well as reach our own goals–personal and professional. Dweck reveals what all great parents, teachers, CEOs, and athletes already know: how a simple idea about the brain can create a love of learning and a resilience that is the basis of great accomplishment in every area.",
                             Title = "Mindset: The New Psychology of Success"
                         },
                         new
                         {
-                            Id = new Guid("cf28b92d-0fd1-4aa6-baf6-bba267ef979d"),
+                            BookId = new Guid("37daa9c4-6f75-47f2-aad9-0b95cd149931"),
                             Created = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "It began with a break-in at the Democratic National Committee headquarters in Washington DC, on 17 June 1972. Bob Woodward, a journalist for the Washington Post, was called into the office on a Saturday morning to cover the story. Carl Bernstein, a political reporter on the Post, was also assigned. They soon learned this was no ordinary burglary. Following lead after lead, Woodward and Bernstein picked up a trail of money, conspiracy and high-level pressure that ultimately led to the doors of the Oval Office. Men very close to the President were implicated, and then Richard Nixon himself. Over a period of months, Woodward met secretly with Deep Throat, for decades the most famous anonymous source in the history of journalism. As he and Bernstein pieced the jigsaw together, they produced a series of explosive stories that would not only win the Post a Pulitzer Prize, they would bring about the President's scandalous downfall. ALL THE PRESIDENT'S MEN documents this amazing story. Taut, gripping and fascinating, it is a classic of its kind -- the true story of the events that changed the American presidency.",
                             Title = "All the President's Men"
@@ -132,42 +115,27 @@ namespace Library.Infrastructure.Migrations
                     b.Property<Guid>("AuthorId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("LastModified")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("LastModifiedBy")
-                        .HasColumnType("nvarchar(max)");
-
                     b.HasKey("BookId", "AuthorId");
 
                     b.HasIndex("AuthorId");
 
-                    b.ToTable("BookAuthor");
+                    b.ToTable("BookAuthors");
 
                     b.HasData(
                         new
                         {
-                            BookId = new Guid("66afd4c7-35dd-4cfd-b79c-9ca78de0eb4d"),
-                            AuthorId = new Guid("3df10afa-150a-43f8-ae05-0a06f743a7c1"),
-                            Created = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                            BookId = new Guid("86cfaf88-ac90-4915-80c3-d61eb7c37064"),
+                            AuthorId = new Guid("c4581129-9d4c-46bf-b083-22372572b8f0")
                         },
                         new
                         {
-                            BookId = new Guid("cf28b92d-0fd1-4aa6-baf6-bba267ef979d"),
-                            AuthorId = new Guid("8dc98c87-e225-4337-9f17-5da395469f5a"),
-                            Created = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                            BookId = new Guid("37daa9c4-6f75-47f2-aad9-0b95cd149931"),
+                            AuthorId = new Guid("c8bdd85d-a573-4480-ba1a-06316463cf8f")
                         },
                         new
                         {
-                            BookId = new Guid("cf28b92d-0fd1-4aa6-baf6-bba267ef979d"),
-                            AuthorId = new Guid("52696061-03d1-41ad-bd44-1091223f748e"),
-                            Created = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                            BookId = new Guid("37daa9c4-6f75-47f2-aad9-0b95cd149931"),
+                            AuthorId = new Guid("f6204176-7cce-4db6-9353-de2048f4642e")
                         });
                 });
 

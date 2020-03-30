@@ -7,18 +7,14 @@ using System.Text;
 
 namespace Library.Domain.Entities
 {
-    public class BookAuthor : AuditableEntity
+    public class BookAuthor //: AuditableEntity
     {
-        //[Key]
         public Guid BookId { get; set; }
 
-        //[ForeignKey("BookId")]
         public Book Book { get; set; }
 
-        //[Key]
         public Guid AuthorId { get; set; }
 
-        //[ForeignKey("AuthorId")]
         public Author Author { get; set; }
     }
 }

@@ -3,13 +3,17 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29905.134
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Library.API", "Library.API\Library.API.csproj", "{71451FB7-5704-41EB-8D2E-145380EE7040}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Library.API", "Library.API\Library.API.csproj", "{71451FB7-5704-41EB-8D2E-145380EE7040}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Library.Domain", "Library.Domain\Library.Domain.csproj", "{D311E2F0-866A-4280-AC11-7B0F5ED205E7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Library.Domain", "Library.Domain\Library.Domain.csproj", "{D311E2F0-866A-4280-AC11-7B0F5ED205E7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Library.Infrastructure", "Library.Infrastructure\Library.Infrastructure.csproj", "{32B273CE-EEA0-4658-AABB-DF5049EAD309}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Library.Infrastructure", "Library.Infrastructure\Library.Infrastructure.csproj", "{32B273CE-EEA0-4658-AABB-DF5049EAD309}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Library.Application", "Library.Application\Library.Application.csproj", "{CB71FC65-1AD3-42DA-B298-52C5B6484BB5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Library.Application", "Library.Application\Library.Application.csproj", "{CB71FC65-1AD3-42DA-B298-52C5B6484BB5}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{C77028B1-226B-433D-BA5D-99393676C943}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{FF3B11A5-C657-4E3E-AA97-746565CF285B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -36,6 +40,12 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{71451FB7-5704-41EB-8D2E-145380EE7040} = {C77028B1-226B-433D-BA5D-99393676C943}
+		{D311E2F0-866A-4280-AC11-7B0F5ED205E7} = {C77028B1-226B-433D-BA5D-99393676C943}
+		{32B273CE-EEA0-4658-AABB-DF5049EAD309} = {C77028B1-226B-433D-BA5D-99393676C943}
+		{CB71FC65-1AD3-42DA-B298-52C5B6484BB5} = {C77028B1-226B-433D-BA5D-99393676C943}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {BD93FFB7-B4CC-4C37-96E6-24EEF9E85649}
