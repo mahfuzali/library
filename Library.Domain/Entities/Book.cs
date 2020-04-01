@@ -14,6 +14,16 @@ namespace Library.Domain.Entities
 
         public string Description { get; set; }
 
+        public string Publisher { get; set; }
+
+        public string ISBN { get; set; }
+
+        /**/
+        public ICollection<Genre> Genres { get; set; } 
+            = new List<Genre>();
+        
+        public Language Language { get; set; }
+
         public ICollection<BookAuthor> BookAuthors { get; set; }
                 = new List<BookAuthor>();
     }

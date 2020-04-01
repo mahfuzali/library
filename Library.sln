@@ -15,6 +15,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{C77028B1-226
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{FF3B11A5-C657-4E3E-AA97-746565CF285B}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "solution items", "solution items", "{D75991C0-D82B-4382-8559-7FF9FE2D9C41}"
+	ProjectSection(SolutionItems) = preProject
+		..\..\..\Downloads\local_library_model_uml.png = ..\..\..\Downloads\local_library_model_uml.png
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

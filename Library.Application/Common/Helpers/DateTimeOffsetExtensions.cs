@@ -18,5 +18,10 @@ namespace Library.Application.Common.Helpers
 
             return age;
         }
+
+        public static string DateTimeToString(this DateTimeOffset dateTimeOffset)
+        {
+            return dateTimeOffset.ToString("d"); 
+        }
     }
 }

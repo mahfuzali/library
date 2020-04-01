@@ -13,4 +13,8 @@
     <ProjectReference Include="..\Library.Domain\Library.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Authors\Queries\" />
+  </ItemGroup>
+
 </Project>

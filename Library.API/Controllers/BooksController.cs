@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Library.Application.Books.ResourceParameters;
 using Library.Application.Dtos.Models;
 using Library.Infrastructure.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -26,9 +27,10 @@ namespace Library.API.Controllers
 
         [HttpGet()]
         [HttpHead]
-        public IActionResult GetBooks()
+        public IActionResult GetBooks(
+            [FromQuery] BooksResourceParameters booksResourceParameters)
         {
-            var booksFromRepo = _libraryRepository.GetBooks();
+            var booksFromRepo = _libraryRepository.GetBooks(booksResourceParameters);
             return Ok(_mapper.Map<IEnumerable<BookDto>>(booksFromRepo));
         }
 

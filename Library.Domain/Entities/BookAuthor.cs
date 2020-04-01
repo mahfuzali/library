@@ -7,7 +7,7 @@ using System.Text;
 
 namespace Library.Domain.Entities
 {
-    public class BookAuthor //: AuditableEntity
+    public class BookAuthor : AuditableEntity
     {
         public Guid BookId { get; set; }
 

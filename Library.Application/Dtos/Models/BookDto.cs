@@ -13,6 +13,16 @@ namespace Library.Application.Dtos.Models
 
         public string Description { get; set; }
 
+        public string Publisher { get; set; }
+
+        public string ISBN { get; set; }
+
+        /**/
+        public ICollection<string> Genres { get; set; }
+            = new List<string>();
+        
+        public string Language { get; set; }
+        
         public ICollection<AuthorViewModel> Authors { get; set; }
             = new List<AuthorViewModel>();
     }

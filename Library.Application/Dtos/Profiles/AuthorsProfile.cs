@@ -23,6 +23,12 @@ namespace Library.Application.Dtos.Profiles
                     dest => dest.Age,
                     opt => opt.MapFrom(src => src.DateOfBirth.GetCurrentAge()))
                 .ForMember(
+                    dest => dest.DateOfBirth,
+                    opt => opt.MapFrom(src => src.DateOfBirth.DateTimeToString()))
+                .ForMember(
+                    dest => dest.DateOfDeath,
+                    opt => opt.MapFrom(src => src.DateOfDeath.DateTimeToString()))
+                .ForMember(
                     dest => dest.Books,
                     opt => opt.MapFrom(src => src.BookAuthors.Select(ba => ba.Book)))
                 .ReverseMap();
@@ -34,44 +40,9 @@ namespace Library.Application.Dtos.Profiles
                 .ForMember(
                     dest => dest.Age,
                     opt => opt.MapFrom(src => src.DateOfBirth.GetCurrentAge()))
-                .ReverseMap();
+                .ReverseMap()
+                .ForAllMembers(src => src.Ignore());
 
-            /*
-            CreateMap<Author, AuthorDto>()
-            .ForMember(
-                dest => dest.Name,
-                opt => opt.MapFrom(src => $"{src.FirstName} {src.LastName}"))
-            .ForMember(
-                dest => dest.Age,
-                opt => opt.MapFrom(src => src.DateOfBirth.GetCurrentAge()))
-            .ForMember(
-                a => a.Books, 
-                opt => opt.MapFrom(
-                    a => a.BookAuthors
-                            .Select(ba => ba.Book)))
-            .ReverseMap()
-            .PreserveReferences()
-            .ForMember(
-                a => a.BookAuthors, 
-                opt => opt.MapFrom(
-                    a => a.Books
-                    .Select(b => new {b.BookId, Book = b, a.AuthorId, Author = a })))
-            ;
-            */
-
-
-
-            /*
-            CreateMap<BookAuthor, AuthorDto>()
-                .ForMember(
-                    dest => dest.Id,
-                    opt => opt.MapFrom(src => src.BookId));
-
-           
-            CreateMap<BookAuthor, BookForAuthorDto>()
-               .ForMember(res => res.Id, opt => opt.MapFrom(dto => dto.Book.Id))
-               .ForMember(res => res.Name, opt => opt.MapFrom(dto => $"{dto.Author.FirstName} {dto.Author.LastName}"));
-            */
         }
     }
 }

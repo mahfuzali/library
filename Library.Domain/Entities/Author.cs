@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Library.Domain.Entities
 {
-    public class Author //: AuditableEntity
+    public class Author : AuditableEntity
     {
         public Guid AuthorId { get; set; }
 
@@ -15,6 +15,8 @@ namespace Library.Domain.Entities
         public string LastName { get; set; }
 
         public DateTimeOffset DateOfBirth { get; set; }
+
+        public DateTimeOffset DateOfDeath { get; set; }
 
         public ICollection<BookAuthor> BookAuthors { get; set; }
             = new List<BookAuthor>();

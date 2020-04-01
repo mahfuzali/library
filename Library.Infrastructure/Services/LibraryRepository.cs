@@ -1,4 +1,5 @@
-﻿using Library.Domain.Entities;
+﻿using Library.Application.Books.ResourceParameters;
+using Library.Domain.Entities;
 using Library.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -17,27 +18,23 @@ namespace Library.Infrastructure.Services
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
+        #region Authors
         public void AddAuthor(Author author)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void AddBook(Book book)
         {
             throw new NotImplementedException();
         }
 
         public bool AuthorExists(Guid authorId)
         {
-            throw new NotImplementedException();
+            if (authorId == Guid.Empty)
+            {
+                throw new ArgumentNullException(nameof(authorId));
+            }
+
+            return _context.Authors.Any(author => author.AuthorId == authorId);
         }
 
         public void DeleteAuthor(Author author)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void DeleteBook(Book book)
         {
             throw new NotImplementedException();
         }
@@ -77,6 +74,19 @@ namespace Library.Infrastructure.Services
                 .OrderBy(a => a.FirstName)
                 .OrderBy(a => a.LastName)
                 .ToList();
+        }
+
+        #endregion
+
+        #region Books
+        public void AddBook(Book book)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void DeleteBook(Book book)
+        {
+            throw new NotImplementedException();
         }
 
         public Book GetBook(Guid bookId)
@@ -132,6 +142,52 @@ namespace Library.Infrastructure.Services
                         .Include(a => a.BookAuthors)
                         .ThenInclude(ba => ba.Author);
         }
+
+        public IEnumerable<Book> GetBooks(BooksResourceParameters booksResourceParameters) {
+            if (booksResourceParameters == null)
+            {
+                throw new ArgumentNullException(nameof(booksResourceParameters));
+            }
+
+            if (string.IsNullOrWhiteSpace(booksResourceParameters.Title)
+                && string.IsNullOrWhiteSpace(booksResourceParameters.SearchQuery))
+            {
+                return GetBooks();
+            }
+
+            var collectionOfBooks = _context.Books
+                                        .Include(a => a.BookAuthors)
+                                            .ThenInclude(ba => ba.Author) as IQueryable<Book>;
+
+            if (!string.IsNullOrWhiteSpace(booksResourceParameters.Title))
+            {
+                var title = booksResourceParameters.Title.Trim();
+                collectionOfBooks = collectionOfBooks.Where(book => book.Title == title);
+            }
+
+            if (!string.IsNullOrWhiteSpace(booksResourceParameters.SearchQuery)) 
+            {
+                var searchQuery = booksResourceParameters.SearchQuery.Trim();
+                collectionOfBooks = collectionOfBooks.Where(book => book.Title.Contains(searchQuery)
+                    || book.Description.Contains(searchQuery)
+                    || book.Publisher.Contains(searchQuery)
+                    //|| book.Language.Name.Contains(searchQuery)
+                );
+            }
+            return collectionOfBooks.ToList();
+        }
+
+        public bool BookExists(Guid bookId)
+        {
+            if (bookId == Guid.Empty)
+            {
+                throw new ArgumentNullException(nameof(bookId));
+            }
+
+            return _context.Books.Any(book => book.BookId == bookId);
+        }
+
+        #endregion
 
         public bool Save()
         {

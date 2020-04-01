@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Library.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20200330113031_InitialMigration")]
+    [Migration("20200401113630_InitialMigration")]
     partial class InitialMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -27,10 +27,25 @@ namespace Library.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTimeOffset>("DateOfBirth")
                         .HasColumnType("datetimeoffset");
 
+                    b.Property<DateTimeOffset>("DateOfDeath")
+                        .HasColumnType("datetimeoffset");
+
                     b.Property<string>("FirstName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("LastModified")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("LastModifiedBy")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("LastName")
@@ -43,22 +58,28 @@ namespace Library.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            AuthorId = new Guid("c4581129-9d4c-46bf-b083-22372572b8f0"),
+                            AuthorId = new Guid("631bfe98-2c6f-4509-be84-73f0f00c5431"),
+                            Created = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             DateOfBirth = new DateTimeOffset(new DateTime(1946, 10, 17, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 1, 0, 0, 0)),
+                            DateOfDeath = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             FirstName = "Carol",
                             LastName = "S. Dweck"
                         },
                         new
                         {
-                            AuthorId = new Guid("c8bdd85d-a573-4480-ba1a-06316463cf8f"),
+                            AuthorId = new Guid("18e75019-5ccc-45e6-88de-78ef0d51633a"),
+                            Created = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             DateOfBirth = new DateTimeOffset(new DateTime(1943, 3, 26, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            DateOfDeath = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             FirstName = "Robert",
                             LastName = "Upshur Woodward"
                         },
                         new
                         {
-                            AuthorId = new Guid("f6204176-7cce-4db6-9353-de2048f4642e"),
+                            AuthorId = new Guid("07dddc67-4984-4ce6-b3a5-aadf317d450b"),
+                            Created = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             DateOfBirth = new DateTimeOffset(new DateTime(1944, 2, 14, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            DateOfDeath = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             FirstName = "Carl",
                             LastName = "Bernstein"
                         });
@@ -79,10 +100,16 @@ namespace Library.Infrastructure.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("ISBN")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime?>("LastModified")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("LastModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Publisher")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Title")
@@ -95,16 +122,20 @@ namespace Library.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            BookId = new Guid("86cfaf88-ac90-4915-80c3-d61eb7c37064"),
+                            BookId = new Guid("17c13831-6d85-47ba-918e-d2fd9edd631d"),
                             Created = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Dweck explains why it’s not just our abilities and talent that bring us success–but whether we approach them with a fixed or growth mindset. She makes clear why praising intelligence and ability doesn’t foster self-esteem and lead to accomplishment, but may actually jeopardize success. With the right mindset, we can motivate our kids and help them to raise their grades, as well as reach our own goals–personal and professional. Dweck reveals what all great parents, teachers, CEOs, and athletes already know: how a simple idea about the brain can create a love of learning and a resilience that is the basis of great accomplishment in every area.",
+                            ISBN = "978-0345472328",
+                            Publisher = "Ballantine Books",
                             Title = "Mindset: The New Psychology of Success"
                         },
                         new
                         {
-                            BookId = new Guid("37daa9c4-6f75-47f2-aad9-0b95cd149931"),
+                            BookId = new Guid("9d2b3951-a00b-4617-8413-feb36914722d"),
                             Created = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "It began with a break-in at the Democratic National Committee headquarters in Washington DC, on 17 June 1972. Bob Woodward, a journalist for the Washington Post, was called into the office on a Saturday morning to cover the story. Carl Bernstein, a political reporter on the Post, was also assigned. They soon learned this was no ordinary burglary. Following lead after lead, Woodward and Bernstein picked up a trail of money, conspiracy and high-level pressure that ultimately led to the doors of the Oval Office. Men very close to the President were implicated, and then Richard Nixon himself. Over a period of months, Woodward met secretly with Deep Throat, for decades the most famous anonymous source in the history of journalism. As he and Bernstein pieced the jigsaw together, they produced a series of explosive stories that would not only win the Post a Pulitzer Prize, they would bring about the President's scandalous downfall. ALL THE PRESIDENT'S MEN documents this amazing story. Taut, gripping and fascinating, it is a classic of its kind -- the true story of the events that changed the American presidency.",
+                            ISBN = "080-7897015427",
+                            Publisher = "Simon & Schuster UK",
                             Title = "All the President's Men"
                         });
                 });
@@ -117,6 +148,18 @@ namespace Library.Infrastructure.Migrations
                     b.Property<Guid>("AuthorId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("LastModified")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("LastModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("BookId", "AuthorId");
 
                     b.HasIndex("AuthorId");
@@ -126,18 +169,52 @@ namespace Library.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            BookId = new Guid("86cfaf88-ac90-4915-80c3-d61eb7c37064"),
-                            AuthorId = new Guid("c4581129-9d4c-46bf-b083-22372572b8f0")
+                            BookId = new Guid("17c13831-6d85-47ba-918e-d2fd9edd631d"),
+                            AuthorId = new Guid("631bfe98-2c6f-4509-be84-73f0f00c5431"),
+                            Created = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
-                            BookId = new Guid("37daa9c4-6f75-47f2-aad9-0b95cd149931"),
-                            AuthorId = new Guid("c8bdd85d-a573-4480-ba1a-06316463cf8f")
+                            BookId = new Guid("9d2b3951-a00b-4617-8413-feb36914722d"),
+                            AuthorId = new Guid("18e75019-5ccc-45e6-88de-78ef0d51633a"),
+                            Created = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
-                            BookId = new Guid("37daa9c4-6f75-47f2-aad9-0b95cd149931"),
-                            AuthorId = new Guid("f6204176-7cce-4db6-9353-de2048f4642e")
+                            BookId = new Guid("9d2b3951-a00b-4617-8413-feb36914722d"),
+                            AuthorId = new Guid("07dddc67-4984-4ce6-b3a5-aadf317d450b"),
+                            Created = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                        });
+                });
+
+            modelBuilder.Entity("Library.Domain.Entities.Book", b =>
+                {
+                    b.OwnsOne("Library.Domain.Entities.Language", "Language", b1 =>
+                        {
+                            b1.Property<Guid>("BookId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<string>("Name")
+                                .HasColumnType("nvarchar(max)");
+
+                            b1.HasKey("BookId");
+
+                            b1.ToTable("Books");
+
+                            b1.WithOwner()
+                                .HasForeignKey("BookId");
+
+                            b1.HasData(
+                                new
+                                {
+                                    BookId = new Guid("17c13831-6d85-47ba-918e-d2fd9edd631d"),
+                                    Name = "English"
+                                },
+                                new
+                                {
+                                    BookId = new Guid("9d2b3951-a00b-4617-8413-feb36914722d"),
+                                    Name = "English"
+                                });
                         });
                 });
 

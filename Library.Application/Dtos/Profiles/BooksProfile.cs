@@ -16,10 +16,20 @@ namespace Library.Application.Dtos.Profiles
                 .ForMember(
                     dest => dest.Authors,
                     opt => opt.MapFrom(src => src.BookAuthors.Select(ba => ba.Author)))
-                .ReverseMap()
+                /**/
+                .ForMember(
+                    dest => dest.Genres,
+                    opt => opt.MapFrom(src => src.Genres.Select(ba => ba.Name)))
+                
+                .ForMember(
+                    dest => dest.Language,
+                    opt => opt.MapFrom(src => src.Language.Name))
                 .ReverseMap();
 
             CreateMap<Book, BookViewModel>()
+                .ForMember(
+                    dest => dest.Language,
+                    opt => opt.MapFrom(src => src.Language.Name))
                 .ReverseMap();
         }
         

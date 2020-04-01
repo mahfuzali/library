@@ -1,4 +1,5 @@
-﻿using Library.Domain.Entities;
+﻿using Library.Application.Books.ResourceParameters;
+using Library.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -7,6 +8,7 @@ namespace Library.Infrastructure.Services
 {
     public interface ILibraryRepository
     {
+        IEnumerable<Book> GetBooks(BooksResourceParameters booksResourceParameters);
         IEnumerable<Book> GetBooks(IEnumerable<Guid> bookIds);
         IEnumerable<Book> GetBooks();
         Book GetBook(Guid bookId);
@@ -21,6 +23,7 @@ namespace Library.Infrastructure.Services
         void DeleteAuthor(Author author);
         void UpdateAuthor(Author author);
         bool AuthorExists(Guid authorId);
+        bool BookExists(Guid bookId);
         bool Save();
     }
 }
