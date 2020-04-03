@@ -21,7 +21,21 @@ namespace Library.Infrastructure.Services
         #region Authors
         public void AddAuthor(Author author)
         {
-            throw new NotImplementedException();
+            if (author == null)
+            {
+                throw new ArgumentNullException(nameof(author));
+            }
+
+            author.AuthorId = Guid.NewGuid();
+
+            /*
+            foreach (var book in author.BookAuthors)
+            {
+                book.BookId = Guid.NewGuid();
+            }
+            */
+
+            _context.Authors.Add(author);
         }
 
         public bool AuthorExists(Guid authorId)
@@ -32,6 +46,19 @@ namespace Library.Infrastructure.Services
             }
 
             return _context.Authors.Any(author => author.AuthorId == authorId);
+        }
+
+        public bool AuthorExists(string firstName, string lastName, DateTimeOffset dateOfBirth) 
+        {
+            if (string.IsNullOrWhiteSpace(firstName) && string.IsNullOrWhiteSpace(lastName) && dateOfBirth == null)
+            {
+                throw new ArgumentNullException("Invalid input");
+            }
+
+            return _context.Authors.Any(author =>
+                                            author.FirstName == firstName &&
+                                            author.LastName == lastName && 
+                                            author.DateOfBirth == dateOfBirth);
         }
 
         public void DeleteAuthor(Author author)
@@ -51,6 +78,27 @@ namespace Library.Infrastructure.Services
                         .ThenInclude(ba => ba.Book)
                     .FirstOrDefault(a => a.AuthorId == authorId);
         }
+
+        /*
+        public Author GetBook(Guid authorId, Guid bookId)
+        {
+            if (authorId == Guid.Empty)
+            {
+                throw new ArgumentNullException(nameof(authorId));
+            }
+
+            if (bookId == Guid.Empty)
+            {
+                throw new ArgumentNullException(nameof(bookId));
+            }
+
+            return _context.Authors
+                                .Include(a => a.BookAuthors)
+                                .ThenInclude(ba => ba.Book.BookId == bookId)
+                            .FirstOrDefault(a => a.AuthorId == authorId);
+
+        }
+        */
 
         public IEnumerable<Author> GetAuthors()
         {
@@ -78,10 +126,49 @@ namespace Library.Infrastructure.Services
 
         #endregion
 
+        public void AddBookAuthor(Book book, Author author)
+        {
+            if (book == null )
+            {
+                throw new ArgumentNullException(nameof(book));
+            }
+
+            if (author == null)
+            {
+                throw new ArgumentNullException(nameof(author));
+            }
+
+            BookAuthor ba = new BookAuthor
+            {
+                BookId = book.BookId,
+                Book = book,
+                AuthorId = author.AuthorId,
+                Author = author
+            };
+
+            _context.BookAuthors.Add(ba);
+        }
+
         #region Books
         public void AddBook(Book book)
         {
-            throw new NotImplementedException();
+            if (book == null)
+            {
+                throw new ArgumentNullException(nameof(book));
+            }
+
+            book.BookId = Guid.NewGuid();
+
+            /*
+            foreach (var bookAuthor in book.BookAuthors)
+            {
+                bookAuthor.AuthorId = Guid.NewGuid();
+                //.Authors.Add(bookAuthor.Author);
+                //_context.BookAuthors.Add(bookAuthor);
+            }
+            */
+
+            _context.Books.Add(book);
         }
 
         public void DeleteBook(Book book)
@@ -102,6 +189,7 @@ namespace Library.Infrastructure.Services
                     .FirstOrDefault(a => a.BookId == bookId);
         }
 
+
         public Book GetBook(Guid authorId, Guid bookId)
         {
             if (authorId == Guid.Empty)
@@ -114,10 +202,12 @@ namespace Library.Infrastructure.Services
                 throw new ArgumentNullException(nameof(bookId));
             }
 
+            var book = _context.BookAuthors.FirstOrDefault(b => b.AuthorId == authorId && b.BookId == bookId);
+
             return _context.Books
-                        .Include(a => a.BookAuthors)
-                        .ThenInclude(ba => ba.Author.AuthorId == authorId)
-                    .FirstOrDefault(a => a.BookId == bookId);
+                        .Include(ba => ba.BookAuthors)
+                            .ThenInclude(a => a.Author)
+                    .FirstOrDefault(b => b.BookId == book.BookId);
                     
         }
 
@@ -177,6 +267,21 @@ namespace Library.Infrastructure.Services
             return collectionOfBooks.ToList();
         }
 
+        public IEnumerable<Book> GetBooks(Guid authorId)
+        {
+            if (authorId == Guid.Empty)
+            {
+                throw new ArgumentNullException(nameof(authorId));
+            }
+
+            var collectionOfBookAuthors = _context.BookAuthors
+                                                .Where(author => author.AuthorId == authorId).Select(a => a.BookId).ToList();
+
+            return _context.Books.Where(b => collectionOfBookAuthors.Contains(b.BookId))
+                                        .Include(a => a.BookAuthors)
+                                            .ThenInclude(ba => ba.Author);
+        }
+
         public bool BookExists(Guid bookId)
         {
             if (bookId == Guid.Empty)
@@ -185,6 +290,19 @@ namespace Library.Infrastructure.Services
             }
 
             return _context.Books.Any(book => book.BookId == bookId);
+        }
+
+        public bool BookExists(string title, string isbn, string publiser) 
+        {
+            if (string.IsNullOrWhiteSpace(title) && string.IsNullOrWhiteSpace(isbn) && string.IsNullOrWhiteSpace(publiser))
+            {
+                throw new ArgumentNullException("Invalid input");
+            }
+
+            return _context.Books.Any(book => 
+                                            book.Title == title && 
+                                            book.ISBN == isbn && 
+                                            book.Publisher == publiser);
         }
 
         #endregion
@@ -216,6 +334,11 @@ namespace Library.Infrastructure.Services
             {
                 // dispose resources when needed
             }
+        }
+
+        public Author GetAuthor(Guid authorId, Guid bookId)
+        {
+            throw new NotImplementedException();
         }
     }
 }

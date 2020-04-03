@@ -43,6 +43,8 @@ namespace Library.Application.Dtos.Profiles
                 .ReverseMap()
                 .ForAllMembers(src => src.Ignore());
 
+            CreateMap<AuthorForCreationDto, Author>()
+                ;
         }
     }
 }

@@ -37,7 +37,28 @@ namespace Library.API
             {
                 setupAction.ReturnHttpNotAcceptable = true;
 
-            }).AddXmlDataContractSerializerFormatters();
+            }).AddXmlDataContractSerializerFormatters()
+            .ConfigureApiBehaviorOptions(setupAction =>
+            {
+                setupAction.InvalidModelStateResponseFactory = context =>
+                {
+                    var problemDetails = new ValidationProblemDetails(context.ModelState)
+                    {
+                        Type = "https://library.com/modelvalidationproblem",
+                        Title = "One or more model validation errors occurred.",
+                        Status = StatusCodes.Status422UnprocessableEntity,
+                        Detail = "See the errors property for details.",
+                        Instance = context.HttpContext.Request.Path
+                    };
+
+                    problemDetails.Extensions.Add("traceId", context.HttpContext.TraceIdentifier);
+
+                    return new UnprocessableEntityObjectResult(problemDetails)
+                    {
+                        ContentTypes = { "application/problem+json" }
+                    };
+                };
+            });
 
             //services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 

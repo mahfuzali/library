@@ -1,12 +1,11 @@
 ﻿using AutoMapper;
 using Library.Application.Books.ResourceParameters;
 using Library.Application.Dtos.Models;
+using Library.Domain.Entities;
 using Library.Infrastructure.Services;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Library.API.Controllers
 {
@@ -34,7 +33,7 @@ namespace Library.API.Controllers
             return Ok(_mapper.Map<IEnumerable<BookDto>>(booksFromRepo));
         }
 
-        [HttpGet("{bookId}")]
+        [HttpGet("{bookId}", Name = "GetBook")]
         public IActionResult GetBook(Guid bookId)
         {
             var bookFromRepo = _libraryRepository.GetBook(bookId);
@@ -45,6 +44,37 @@ namespace Library.API.Controllers
             }
 
             return Ok(_mapper.Map<BookDto>(bookFromRepo));
+        }
+
+        [HttpPost]
+        public ActionResult<BookDto> CreateBook(BookForCreationDto book)
+        {
+            var bookEntity = _mapper.Map<Book>(book);
+                        
+            _libraryRepository.AddBook(bookEntity);
+
+            foreach (var author in book.Authors)
+            { 
+                var authorEntity = _mapper.Map<Author>(author);
+                _libraryRepository.AddAuthor(authorEntity);
+                //_libraryRepository.Save();
+
+                _libraryRepository.AddBookAuthor(bookEntity, authorEntity);
+            }
+
+            _libraryRepository.Save();
+
+            var bookToReturn = _mapper.Map<BookDto>(bookEntity);
+            return CreatedAtRoute("GetBook",
+                new { bookId = bookToReturn.BookId },
+                bookToReturn);
+        }
+
+        [HttpOptions]
+        public IActionResult GetAuthorsOptions()
+        {
+            Response.Headers.Add("Allow", "GET,OPTIONS,POST");
+            return Ok();
         }
     }
 }
