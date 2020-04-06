@@ -3,7 +3,12 @@ using Library.Application.Authors.Models;
 using Library.Application.Dtos.Models;
 using Library.Domain.Entities;
 using Library.Infrastructure.Services;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -101,6 +106,90 @@ namespace Library.API.Controllers
             return CreatedAtRoute("GetBookForAuthor",
                 new { authorId = authorId, bookId = bookToReturn.BookId },
                 bookToReturn);
+        }
+
+
+        [HttpPatch("{authorId}/books/{bookId}")]
+        public ActionResult PartiallyUpdateCourseForAuthor(Guid authorId,
+            Guid bookId,
+            JsonPatchDocument<BookForUpdateDto> patchDocument)
+        {
+            if (!_libraryRepository.AuthorExists(authorId))
+            {
+                return NotFound();
+            }
+
+            var bookForAuthorFromRepo = _libraryRepository.GetBook(authorId, bookId);
+
+            if (bookForAuthorFromRepo == null)
+            {
+                var bookDto = new BookForUpdateDto();
+                patchDocument.ApplyTo(bookDto);
+
+                if (!TryValidateModel(bookDto))
+                {
+                    return ValidationProblem(ModelState);
+                }
+
+                var bookToAdd = _mapper.Map<Book>(bookDto);
+                bookToAdd.BookId = bookId;
+
+                _libraryRepository.AddBook(authorId, bookToAdd);
+                _libraryRepository.Save();
+
+                var bookToReturn = _mapper.Map<BookDto>(bookToAdd);
+
+                return CreatedAtRoute("GetBook",
+                    new { bookId = bookToReturn.BookId },
+                    bookToReturn);
+            }
+
+            var bookToPatch = _mapper.Map<BookForUpdateDto>(bookForAuthorFromRepo);
+            // add validation
+            patchDocument.ApplyTo(bookToPatch);
+
+            if (!TryValidateModel(bookToPatch))
+            {
+                return ValidationProblem(ModelState);
+            }
+
+            _mapper.Map(bookToPatch, bookForAuthorFromRepo);
+
+            _libraryRepository.UpdateBook(bookForAuthorFromRepo);
+
+            _libraryRepository.Save();
+
+            return NoContent();
+        }
+
+        public override ActionResult ValidationProblem(
+        [ActionResultObjectValue] ModelStateDictionary modelStateDictionary)
+        {
+            var options = HttpContext.RequestServices
+                .GetRequiredService<IOptions<ApiBehaviorOptions>>();
+            return (ActionResult)options.Value.InvalidModelStateResponseFactory(ControllerContext);
+        }
+
+
+        [HttpDelete("{authorId}")]
+        public ActionResult DeleteBook(Guid authorId)
+        {
+            if (!_libraryRepository.AuthorExists(authorId))
+            {
+                return NotFound();
+            }
+
+            var authorFromRepo = _libraryRepository.GetAuthor(authorId);
+
+            if (authorFromRepo == null)
+            {
+                return NotFound();
+            }
+
+            _libraryRepository.DeleteAuthor(authorFromRepo);
+            _libraryRepository.Save();
+
+            return NoContent();
         }
     }
 }

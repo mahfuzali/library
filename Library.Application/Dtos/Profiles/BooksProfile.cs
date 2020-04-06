@@ -55,6 +55,15 @@ namespace Library.Application.Dtos.Profiles
                     opt => opt.MapFrom(src => src.Language.Name))
                 .ReverseMap();
 
+            CreateMap<Book, BookForUpdateDto>()
+                .ForMember(
+                    dest => dest.Genres,
+                    opt => opt.MapFrom(src => src.Genres.Select(ba => ba.Name)))
+                .ForMember(
+                    dest => dest.Language,
+                    opt => opt.MapFrom(src => src.Language.Name))
+                .ReverseMap();
+
         }
         
     }

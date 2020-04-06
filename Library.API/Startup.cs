@@ -16,7 +16,7 @@ using Microsoft.Extensions.Logging;
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Library.Application;
-
+using Newtonsoft.Json.Serialization;
 namespace Library.API
 {
     public class Startup
@@ -37,8 +37,11 @@ namespace Library.API
             {
                 setupAction.ReturnHttpNotAcceptable = true;
 
-            }).AddXmlDataContractSerializerFormatters()
-            .ConfigureApiBehaviorOptions(setupAction =>
+            }).AddNewtonsoftJson(setupAction =>
+            {
+                setupAction.SerializerSettings.ContractResolver =
+                    new CamelCasePropertyNamesContractResolver();
+            }).ConfigureApiBehaviorOptions(setupAction =>
             {
                 setupAction.InvalidModelStateResponseFactory = context =>
                 {
@@ -58,7 +61,7 @@ namespace Library.API
                         ContentTypes = { "application/problem+json" }
                     };
                 };
-            });
+            }).AddXmlDataContractSerializerFormatters();
 
             //services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
