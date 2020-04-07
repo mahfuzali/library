@@ -1,5 +1,10 @@
-﻿using Library.Application.Books.ResourceParameters;
+﻿using Library.Application.Authors.Models;
+using Library.Application.Authors.ResourceParameters;
+using Library.Application.Books.ResourceParameters;
+using Library.Application.Common.Helpers;
+using Library.Application.Dtos.Models;
 using Library.Domain.Entities;
+using Library.Infrastructure.Common.Helpers;
 using Library.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -12,10 +17,13 @@ namespace Library.Infrastructure.Services
     public class LibraryRepository : ILibraryRepository, IDisposable
     {
         private readonly ApplicationDbContext _context;
+        private readonly IPropertyMappingService _propertyMappingService;
 
-        public LibraryRepository(ApplicationDbContext context)
+        public LibraryRepository(ApplicationDbContext context, IPropertyMappingService propertyMappingService)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
+            _propertyMappingService = propertyMappingService ??
+                                throw new ArgumentNullException(nameof(propertyMappingService));
         }
 
         #region Authors
@@ -37,6 +45,81 @@ namespace Library.Infrastructure.Services
             return _context.Authors
                 .Include(a => a.BookAuthors)
                     .ThenInclude(ba => ba.Book);
+        }
+        /*
+        public IEnumerable<Author> GetAuthors(AuthorsResourceParameters authorsResourceParameters)
+        {
+            if (authorsResourceParameters == null)
+            {
+                throw new ArgumentNullException(nameof(authorsResourceParameters));
+            }
+
+            if (string.IsNullOrWhiteSpace(authorsResourceParameters.Name)
+                && string.IsNullOrWhiteSpace(authorsResourceParameters.SearchQuery))
+            {
+                return GetAuthors();
+            }
+
+            var collectionOfAuthors = _context.Authors
+                                        .Include(ba => ba.BookAuthors)
+                                            .ThenInclude(b => b.Book) as IQueryable<Author>;
+
+            if (!string.IsNullOrWhiteSpace(authorsResourceParameters.Name))
+            {
+                var name = authorsResourceParameters.Name.Trim();
+                collectionOfAuthors = collectionOfAuthors.Where(author => author.FirstName == name && author.LastName == name);
+            }
+
+            if (!string.IsNullOrWhiteSpace(authorsResourceParameters.SearchQuery))
+            {
+                var searchQuery = authorsResourceParameters.SearchQuery.Trim();
+                collectionOfAuthors = collectionOfAuthors.Where(author => 
+                    author.FirstName.Contains(searchQuery) || 
+                    author.LastName.Contains(searchQuery)
+                );
+            }
+            return collectionOfAuthors.ToList();
+        }
+        */
+        public PagedList<Author> GetAuthors(AuthorsResourceParameters authorsResourceParameters)
+        {
+            if (authorsResourceParameters == null)
+            {
+                throw new ArgumentNullException(nameof(authorsResourceParameters));
+            }
+
+            var collectionOfAuthors = _context.Authors
+                                        .Include(ba => ba.BookAuthors)
+                                            .ThenInclude(b => b.Book) as IQueryable<Author>;
+
+            if (!string.IsNullOrWhiteSpace(authorsResourceParameters.Name))
+            {
+                var name = authorsResourceParameters.Name.Trim();
+                collectionOfAuthors = collectionOfAuthors.Where(author => author.FirstName == name || author.LastName == name);
+            }
+
+            if (!string.IsNullOrWhiteSpace(authorsResourceParameters.SearchQuery))
+            {
+                var searchQuery = authorsResourceParameters.SearchQuery.Trim();
+                collectionOfAuthors = collectionOfAuthors.Where(author =>
+                    author.FirstName.Contains(searchQuery) ||
+                    author.LastName.Contains(searchQuery)
+                );
+            }
+
+            if (!string.IsNullOrWhiteSpace(authorsResourceParameters.OrderBy)) 
+            {
+                // get property mapping dictionary
+                var authorPropertyMappingDictionary =
+                    _propertyMappingService.GetPropertyMapping<AuthorDto, Author>();
+
+                collectionOfAuthors = collectionOfAuthors.ApplySort(authorsResourceParameters.OrderBy,
+                    authorPropertyMappingDictionary);
+            }
+
+            return PagedList<Author>.Create(collectionOfAuthors,
+                        authorsResourceParameters.PageNumber,
+                        authorsResourceParameters.PageSize);
         }
 
         public IEnumerable<Author> GetAuthors(IEnumerable<Guid> authorIds)
@@ -214,7 +297,7 @@ namespace Library.Infrastructure.Services
                         .Include(a => a.BookAuthors)
                         .ThenInclude(ba => ba.Author);
         }
-
+        /*
         public IEnumerable<Book> GetBooks(BooksResourceParameters booksResourceParameters)
         {
             if (booksResourceParameters == null)
@@ -249,7 +332,50 @@ namespace Library.Infrastructure.Services
             }
             return collectionOfBooks.ToList();
         }
+        */
 
+        public PagedList<Book> GetBooks(BooksResourceParameters booksResourceParameters)
+        {
+            if (booksResourceParameters == null)
+            {
+                throw new ArgumentNullException(nameof(booksResourceParameters));
+            }
+
+            var collectionOfBooks = _context.Books
+                                        .Include(a => a.BookAuthors)
+                                            .ThenInclude(ba => ba.Author) as IQueryable<Book>;
+
+            if (!string.IsNullOrWhiteSpace(booksResourceParameters.Title))
+            {
+                var title = booksResourceParameters.Title.Trim();
+                collectionOfBooks = collectionOfBooks.Where(book => book.Title == title);
+            }
+
+            if (!string.IsNullOrWhiteSpace(booksResourceParameters.SearchQuery))
+            {
+                var searchQuery = booksResourceParameters.SearchQuery.Trim();
+                collectionOfBooks = collectionOfBooks.Where(book => book.Title.Contains(searchQuery)
+                    || book.Description.Contains(searchQuery)
+                    || book.Publisher.Contains(searchQuery)
+                //|| book.Language.Name.Contains(searchQuery)
+                );
+            }
+
+            if (!string.IsNullOrWhiteSpace(booksResourceParameters.OrderBy))
+            {
+                // get property mapping dictionary
+                var bookPropertyMappingDictionary =
+                    _propertyMappingService.GetPropertyMapping<BookDto, Book>();
+
+                collectionOfBooks = collectionOfBooks.ApplySort(booksResourceParameters.OrderBy,
+                    bookPropertyMappingDictionary);
+            }
+
+
+            return PagedList<Book>.Create(collectionOfBooks,
+                booksResourceParameters.PageNumber,
+                booksResourceParameters.PageSize);
+        }
         public IEnumerable<Book> GetBooks(Guid authorId)
         {
             if (authorId == Guid.Empty)

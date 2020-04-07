@@ -1,4 +1,6 @@
-﻿using Library.Application.Books.ResourceParameters;
+﻿using Library.Application.Authors.ResourceParameters;
+using Library.Application.Books.ResourceParameters;
+using Library.Application.Common.Helpers;
 using Library.Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -13,6 +15,9 @@ namespace Library.Infrastructure.Services
         Author GetAuthor(Guid authorId, Guid bookId);
         IEnumerable<Author> GetAuthors();
         IEnumerable<Author> GetAuthors(IEnumerable<Guid> authorIds);
+        //IEnumerable<Author> GetAuthors(AuthorsResourceParameters authorsResourceParameters);
+        PagedList<Author> GetAuthors(AuthorsResourceParameters authorsResourceParameters);
+
         void AddAuthor(Author author);
         void DeleteAuthor(Author author);
         void UpdateAuthor(Author author);
@@ -24,7 +29,8 @@ namespace Library.Infrastructure.Services
         IEnumerable<Book> GetBooks();
         IEnumerable<Book> GetBooks(Guid authorId);
         IEnumerable<Book> GetBooks(IEnumerable<Guid> bookIds);
-        IEnumerable<Book> GetBooks(BooksResourceParameters booksResourceParameters);
+        //IEnumerable<Book> GetBooks(BooksResourceParameters booksResourceParameters);
+        PagedList<Book> GetBooks(BooksResourceParameters booksResourceParameters);
         Book GetBook(Guid bookId);
         Book GetBook(Guid authorId, Guid bookId);
         void AddBookAuthor(Book book, Author author);

@@ -63,6 +63,9 @@ namespace Library.API
                 };
             }).AddXmlDataContractSerializerFormatters();
 
+            // register PropertyMappingService
+            services.AddTransient<IPropertyMappingService, PropertyMappingService>();
+
             //services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
             services.AddScoped<ILibraryRepository, LibraryRepository>();

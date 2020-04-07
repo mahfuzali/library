@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Library.Application.Books.ResourceParameters;
+using Library.Application.Common.Helpers;
 using Library.Application.Dtos.Models;
 using Library.Domain.Entities;
 using Library.Infrastructure.Services;
@@ -11,6 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
+using System.Text.Json;
 
 namespace Library.API.Controllers
 {
@@ -20,21 +22,64 @@ namespace Library.API.Controllers
     {
         private readonly ILibraryRepository _libraryRepository;
         private readonly IMapper _mapper;
+        private readonly IPropertyMappingService _propertyMappingService;
 
-        public BooksController(ILibraryRepository libraryRepository, IMapper mapper)
+        public BooksController(ILibraryRepository libraryRepository, 
+            IMapper mapper, IPropertyMappingService propertyMappingService)
         {
             _libraryRepository = libraryRepository ??
                 throw new ArgumentNullException(nameof(libraryRepository));
             _mapper = mapper ??
                 throw new ArgumentNullException(nameof(mapper));
+            _propertyMappingService = propertyMappingService ??
+                throw new ArgumentNullException(nameof(propertyMappingService));
         }
 
+        /*
         [HttpGet()]
         [HttpHead]
         public IActionResult GetBooks(
             [FromQuery] BooksResourceParameters booksResourceParameters)
         {
             var booksFromRepo = _libraryRepository.GetBooks(booksResourceParameters);
+            return Ok(_mapper.Map<IEnumerable<BookDto>>(booksFromRepo));
+        }
+        */
+
+        [HttpGet(Name = "GetBooks")]
+        [HttpHead]
+        public ActionResult<IEnumerable<BookDto>> GetBooks(
+            [FromQuery] BooksResourceParameters booksResourceParameters)
+        {
+            if (!_propertyMappingService.ValidMappingExistsFor<BookDto, Book>
+                (booksResourceParameters.OrderBy))
+            {
+                return BadRequest();
+            }
+
+            var booksFromRepo = _libraryRepository.GetBooks(booksResourceParameters);
+
+            var previousPageLink = booksFromRepo.HasPrevious ?
+                CreateBooksResourceUri(booksResourceParameters,
+                ResourceUriType.PreviousPage) : null;
+
+            var nextPageLink = booksFromRepo.HasNext ?
+                CreateBooksResourceUri(booksResourceParameters,
+                ResourceUriType.NextPage) : null;
+
+            var paginationMetadata = new
+            {
+                totalCount = booksFromRepo.TotalCount,
+                pageSize = booksFromRepo.PageSize,
+                currentPage = booksFromRepo.CurrentPage,
+                totalPages = booksFromRepo.TotalPages,
+                previousPageLink,
+                nextPageLink
+            };
+
+            Response.Headers.Add("X-Pagination",
+                JsonSerializer.Serialize(paginationMetadata));
+
             return Ok(_mapper.Map<IEnumerable<BookDto>>(booksFromRepo));
         }
 
@@ -123,6 +168,7 @@ namespace Library.API.Controllers
             return Ok();
         }
 
+
         /*
         [HttpPatch("{bookId}")]
         public ActionResult PartiallyUpdateBook(Guid authorId,
@@ -205,6 +251,47 @@ namespace Library.API.Controllers
             _libraryRepository.Save();
 
             return NoContent();
+        }
+
+        private string CreateBooksResourceUri(
+           BooksResourceParameters booksResourceParameters,
+           ResourceUriType type)
+        {
+            switch (type)
+            {
+                case ResourceUriType.PreviousPage:
+                    return Url.Link("GetBooks",
+                      new
+                      {
+                          orderBy = booksResourceParameters.OrderBy,
+                          pageNumber = booksResourceParameters.PageNumber - 1,
+                          pageSize = booksResourceParameters.PageSize,
+                          title = booksResourceParameters.Title,
+                          searchQuery = booksResourceParameters.SearchQuery
+                      });
+                case ResourceUriType.NextPage:
+                    return Url.Link("GetBooks",
+                      new
+                      {
+                          orderBy = booksResourceParameters.OrderBy,
+                          pageNumber = booksResourceParameters.PageNumber + 1,
+                          pageSize = booksResourceParameters.PageSize,
+                          title = booksResourceParameters.Title,
+                          searchQuery = booksResourceParameters.SearchQuery
+                      });
+
+                default:
+                    return Url.Link("GetBooks",
+                    new
+                    {
+                        orderBy = booksResourceParameters.OrderBy,
+                        pageNumber = booksResourceParameters.PageNumber,
+                        pageSize = booksResourceParameters.PageSize,
+                        title = booksResourceParameters.Title,
+                        searchQuery = booksResourceParameters.SearchQuery
+                    });
+            }
+
         }
     }
 }
