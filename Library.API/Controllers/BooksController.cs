@@ -23,9 +23,11 @@ namespace Library.API.Controllers
         private readonly ILibraryRepository _libraryRepository;
         private readonly IMapper _mapper;
         private readonly IPropertyMappingService _propertyMappingService;
+        private readonly IPropertyCheckerService _propertyCheckerService;
 
         public BooksController(ILibraryRepository libraryRepository, 
-            IMapper mapper, IPropertyMappingService propertyMappingService)
+            IMapper mapper, IPropertyMappingService propertyMappingService,
+            IPropertyCheckerService propertyCheckerService)
         {
             _libraryRepository = libraryRepository ??
                 throw new ArgumentNullException(nameof(libraryRepository));
@@ -33,6 +35,8 @@ namespace Library.API.Controllers
                 throw new ArgumentNullException(nameof(mapper));
             _propertyMappingService = propertyMappingService ??
                 throw new ArgumentNullException(nameof(propertyMappingService));
+            _propertyCheckerService = propertyCheckerService ??
+                throw new ArgumentNullException(nameof(propertyCheckerService));
         }
 
         /*
@@ -48,11 +52,17 @@ namespace Library.API.Controllers
 
         [HttpGet(Name = "GetBooks")]
         [HttpHead]
-        public ActionResult<IEnumerable<BookDto>> GetBooks(
+        public IActionResult GetBooks(
             [FromQuery] BooksResourceParameters booksResourceParameters)
         {
             if (!_propertyMappingService.ValidMappingExistsFor<BookDto, Book>
                 (booksResourceParameters.OrderBy))
+            {
+                return BadRequest();
+            }
+
+            if (!_propertyCheckerService.TypeHasProperties<BookDto>
+                (booksResourceParameters.Fields))
             {
                 return BadRequest();
             }
@@ -80,11 +90,12 @@ namespace Library.API.Controllers
             Response.Headers.Add("X-Pagination",
                 JsonSerializer.Serialize(paginationMetadata));
 
-            return Ok(_mapper.Map<IEnumerable<BookDto>>(booksFromRepo));
+            return Ok(_mapper.Map<IEnumerable<BookDto>>(booksFromRepo)
+                .ShapeData(booksResourceParameters.Fields));
         }
 
         [HttpGet("{bookId}", Name = "GetBook")]
-        public IActionResult GetBook(Guid bookId)
+        public IActionResult GetBook(Guid bookId, string fields)
         {
             var bookFromRepo = _libraryRepository.GetBook(bookId);
 
@@ -93,7 +104,7 @@ namespace Library.API.Controllers
                 return NotFound();
             }
 
-            return Ok(_mapper.Map<BookDto>(bookFromRepo));
+            return Ok(_mapper.Map<BookDto>(bookFromRepo).ShapeData(fields));
         }
 
         [HttpPost]
@@ -263,6 +274,7 @@ namespace Library.API.Controllers
                     return Url.Link("GetBooks",
                       new
                       {
+                          fields = booksResourceParameters.Fields,
                           orderBy = booksResourceParameters.OrderBy,
                           pageNumber = booksResourceParameters.PageNumber - 1,
                           pageSize = booksResourceParameters.PageSize,
@@ -273,6 +285,7 @@ namespace Library.API.Controllers
                     return Url.Link("GetBooks",
                       new
                       {
+                          fields = booksResourceParameters.Fields,
                           orderBy = booksResourceParameters.OrderBy,
                           pageNumber = booksResourceParameters.PageNumber + 1,
                           pageSize = booksResourceParameters.PageSize,
@@ -284,6 +297,7 @@ namespace Library.API.Controllers
                     return Url.Link("GetBooks",
                     new
                     {
+                        fields = booksResourceParameters.Fields,
                         orderBy = booksResourceParameters.OrderBy,
                         pageNumber = booksResourceParameters.PageNumber,
                         pageSize = booksResourceParameters.PageSize,

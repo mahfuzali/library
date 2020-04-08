@@ -32,7 +32,13 @@ namespace Library.API
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddApplication();
-            
+
+            services.AddResponseCaching(options =>
+            {
+                options.MaximumBodySize = 1024;
+                options.UseCaseSensitivePaths = true;
+            });
+
             services.AddControllers(setupAction =>
             {
                 setupAction.ReturnHttpNotAcceptable = true;
@@ -65,6 +71,10 @@ namespace Library.API
 
             // register PropertyMappingService
             services.AddTransient<IPropertyMappingService, PropertyMappingService>();
+
+            // register PropertyCheckerService
+            services.AddTransient<IPropertyCheckerService, PropertyCheckerService>();
+
 
             //services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
@@ -101,12 +111,30 @@ namespace Library.API
 
             }
 
+
             app.UseOpenApi();
             app.UseSwaggerUi3();
 
             app.UseRouting();
 
             app.UseAuthorization();
+
+            app.UseResponseCaching();
+
+            app.Use(async (context, next) =>
+            {
+                context.Response.GetTypedHeaders().CacheControl =
+                    new Microsoft.Net.Http.Headers.CacheControlHeaderValue()
+                    {
+                        Public = true,
+                        MaxAge = TimeSpan.FromSeconds(120)
+                    };
+                context.Response.Headers[Microsoft.Net.Http.Headers.HeaderNames.Vary] =
+                    new string[] { "Accept-Encoding" };
+
+
+                await next();
+            });
 
             app.UseEndpoints(endpoints =>
             {
