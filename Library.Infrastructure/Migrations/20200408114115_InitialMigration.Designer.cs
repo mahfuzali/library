@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Library.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20200407090759_FourthMigration")]
-    partial class FourthMigration
+    [Migration("20200408114115_InitialMigration")]
+    partial class InitialMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -20,6 +20,88 @@ namespace Library.Infrastructure.Migrations
                 .HasAnnotation("ProductVersion", "5.0.0-preview.2.20159.4")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+            modelBuilder.Entity("IdentityServer4.EntityFramework.Entities.DeviceFlowCodes", b =>
+                {
+                    b.Property<string>("UserCode")
+                        .HasColumnType("nvarchar(200)")
+                        .HasMaxLength(200);
+
+                    b.Property<string>("ClientId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(200)")
+                        .HasMaxLength(200);
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Data")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasMaxLength(50000);
+
+                    b.Property<string>("DeviceCode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(200)")
+                        .HasMaxLength(200);
+
+                    b.Property<DateTime?>("Expiration")
+                        .IsRequired()
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("SubjectId")
+                        .HasColumnType("nvarchar(200)")
+                        .HasMaxLength(200);
+
+                    b.HasKey("UserCode");
+
+                    b.HasIndex("DeviceCode")
+                        .IsUnique();
+
+                    b.HasIndex("Expiration");
+
+                    b.ToTable("DeviceCodes");
+                });
+
+            modelBuilder.Entity("IdentityServer4.EntityFramework.Entities.PersistedGrant", b =>
+                {
+                    b.Property<string>("Key")
+                        .HasColumnType("nvarchar(200)")
+                        .HasMaxLength(200);
+
+                    b.Property<string>("ClientId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(200)")
+                        .HasMaxLength(200);
+
+                    b.Property<DateTime>("CreationTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Data")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasMaxLength(50000);
+
+                    b.Property<DateTime?>("Expiration")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("SubjectId")
+                        .HasColumnType("nvarchar(200)")
+                        .HasMaxLength(200);
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(50)")
+                        .HasMaxLength(50);
+
+                    b.HasKey("Key");
+
+                    b.HasIndex("Expiration");
+
+                    b.HasIndex("SubjectId", "ClientId", "Type");
+
+                    b.ToTable("PersistedGrants");
+                });
 
             modelBuilder.Entity("Library.Domain.Entities.Author", b =>
                 {
@@ -62,7 +144,7 @@ namespace Library.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            AuthorId = new Guid("1d996191-7d04-498d-91bf-2fb4cfbb1d1a"),
+                            AuthorId = new Guid("0775a1ad-4eec-4c4a-bddd-85f49b1bcabe"),
                             Created = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             DateOfBirth = new DateTimeOffset(new DateTime(1946, 10, 17, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 1, 0, 0, 0)),
                             DateOfDeath = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
@@ -71,7 +153,7 @@ namespace Library.Infrastructure.Migrations
                         },
                         new
                         {
-                            AuthorId = new Guid("ef0a6dd8-a451-4891-ae04-7d671ce0cac9"),
+                            AuthorId = new Guid("02ec09a0-463c-4c89-98d0-77e289bdab3c"),
                             Created = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             DateOfBirth = new DateTimeOffset(new DateTime(1943, 3, 26, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             DateOfDeath = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
@@ -80,7 +162,7 @@ namespace Library.Infrastructure.Migrations
                         },
                         new
                         {
-                            AuthorId = new Guid("92d3c08e-335d-4a2e-8e73-ad4f8309146b"),
+                            AuthorId = new Guid("421349de-7aea-4d7a-b4bb-887da6300070"),
                             Created = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             DateOfBirth = new DateTimeOffset(new DateTime(1944, 2, 14, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             DateOfDeath = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
@@ -89,7 +171,7 @@ namespace Library.Infrastructure.Migrations
                         },
                         new
                         {
-                            AuthorId = new Guid("39b08695-8a86-4e29-a4c5-6d0cd6c66813"),
+                            AuthorId = new Guid("1a97a240-3b68-4c97-bfa0-08764059aa7c"),
                             Created = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             DateOfBirth = new DateTimeOffset(new DateTime(1965, 7, 31, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 1, 0, 0, 0)),
                             DateOfDeath = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
@@ -140,7 +222,7 @@ namespace Library.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            BookId = new Guid("d12bdef9-84f3-4de9-bdec-940f13971782"),
+                            BookId = new Guid("d541e0ff-adc6-423c-af08-5825fb2f93b9"),
                             Created = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Dweck explains why it’s not just our abilities and talent that bring us success–but whether we approach them with a fixed or growth mindset. She makes clear why praising intelligence and ability doesn’t foster self-esteem and lead to accomplishment, but may actually jeopardize success. With the right mindset, we can motivate our kids and help them to raise their grades, as well as reach our own goals–personal and professional. Dweck reveals what all great parents, teachers, CEOs, and athletes already know: how a simple idea about the brain can create a love of learning and a resilience that is the basis of great accomplishment in every area.",
                             ISBN = "978-0345472328",
@@ -149,7 +231,7 @@ namespace Library.Infrastructure.Migrations
                         },
                         new
                         {
-                            BookId = new Guid("deca4321-bcac-4116-849f-bbdd74483f87"),
+                            BookId = new Guid("03e71245-0de5-48a0-b605-0ccddfc54e43"),
                             Created = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "It began with a break-in at the Democratic National Committee headquarters in Washington DC, on 17 June 1972. Bob Woodward, a journalist for the Washington Post, was called into the office on a Saturday morning to cover the story. Carl Bernstein, a political reporter on the Post, was also assigned. They soon learned this was no ordinary burglary. Following lead after lead, Woodward and Bernstein picked up a trail of money, conspiracy and high-level pressure that ultimately led to the doors of the Oval Office. Men very close to the President were implicated, and then Richard Nixon himself. Over a period of months, Woodward met secretly with Deep Throat, for decades the most famous anonymous source in the history of journalism. As he and Bernstein pieced the jigsaw together, they produced a series of explosive stories that would not only win the Post a Pulitzer Prize, they would bring about the President's scandalous downfall. ALL THE PRESIDENT'S MEN documents this amazing story. Taut, gripping and fascinating, it is a classic of its kind -- the true story of the events that changed the American presidency.",
                             ISBN = "080-7897015427",
@@ -158,7 +240,7 @@ namespace Library.Infrastructure.Migrations
                         },
                         new
                         {
-                            BookId = new Guid("52e692a7-28af-40b7-b732-a026ab869b0d"),
+                            BookId = new Guid("c57478cf-ae5a-408d-9b21-9d23c39b6d53"),
                             Created = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Harry Potter has never even heard of Hogwarts when the letters start dropping on the doormat at number four, Privet Drive. Addressed in green ink on yellowish parchment with a purple seal, they are swiftly confiscated by his grisly aunt and uncle. Then, on Harry’s eleventh birthday, a great beetle-eyed giant of a man called Rubeus Hagrid bursts in with some astonishing news: Harry Potter is a wizard, and he has a place at Hogwarts School of Witchcraft and Wizardry. An incredible adventure is about to begin!",
                             ISBN = "978-1408855898",
@@ -167,7 +249,7 @@ namespace Library.Infrastructure.Migrations
                         },
                         new
                         {
-                            BookId = new Guid("58275004-6db8-488c-8162-4454335bdf41"),
+                            BookId = new Guid("7f69e86b-14f7-40be-835f-21394e47bbc9"),
                             Created = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Harry Potter’s summer has included the worst birthday ever, doomy warnings from a house-elf called Dobby, and rescue from the Dursleys by his friend Ron Weasley in a magical flying car! Back at Hogwarts School of Witchcraft and Wizardry for his second year, Harry hears strange whispers echo through empty corridors – and then the attacks start. Students are found as though turned to stone … Dobby’s sinister predictions seem to be coming true.",
                             ISBN = "978-1408855904",
@@ -176,7 +258,7 @@ namespace Library.Infrastructure.Migrations
                         },
                         new
                         {
-                            BookId = new Guid("1a126438-9879-4b11-970f-e423e03a7ecc"),
+                            BookId = new Guid("8ef2172a-3e52-46d9-bff3-9d2881c5f721"),
                             Created = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "When the Knight Bus crashes through the darkness and screeches to a halt in front of him, it’s the start of another far from ordinary year at Hogwarts for Harry Potter. Sirius Black, escaped mass-murderer and follower of Lord Voldemort, is on the run – and they say he is coming after Harry. In his first ever Divination class, Professor Trelawney sees an omen of death in Harry’s tea leaves … But perhaps most terrifying of all are the Dementors patrolling the school grounds, with their soul-sucking kiss.",
                             ISBN = "978-1408855911",
@@ -185,7 +267,7 @@ namespace Library.Infrastructure.Migrations
                         },
                         new
                         {
-                            BookId = new Guid("313a997d-8aa5-4998-98e5-32b00fe5c21a"),
+                            BookId = new Guid("37ca9d6d-9f71-439a-8bdc-5f814e5975e6"),
                             Created = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "The Triwizard Tournament is to be held at Hogwarts. Only wizards who are over seventeen are allowed to enter – but that doesn’t stop Harry dreaming that he will win the competition. Then at Hallowe’en, when the Goblet of Fire makes its selection, Harry is amazed to find his name is one of those that the magical cup picks out. He will face death-defying tasks, dragons and Dark wizards, but with the help of his best friends, Ron and Hermione, he might just make it through – alive!",
                             ISBN = "978-1408855928",
@@ -194,7 +276,7 @@ namespace Library.Infrastructure.Migrations
                         },
                         new
                         {
-                            BookId = new Guid("257c09a0-7a94-4e08-8f73-93d64ec0fa56"),
+                            BookId = new Guid("c17ab212-156a-40d2-a871-5122223fd1d9"),
                             Created = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "Dark times have come to Hogwarts. After the Dementors’ attack on his cousin Dudley, Harry Potter knows that Voldemort will stop at nothing to find him. There are many who deny the Dark Lord’s return, but Harry is not alone: a secret order gathers at Grimmauld Place to fight against the Dark forces. Harry must allow Professor Snape to teach him how to protect himself from Voldemort’s savage assaults on his mind. But they are growing stronger by the day and Harry is running out of time.",
                             ISBN = "978-1408855935",
@@ -203,7 +285,7 @@ namespace Library.Infrastructure.Migrations
                         },
                         new
                         {
-                            BookId = new Guid("54c53b68-4384-4b5b-a0b6-e995fd61f439"),
+                            BookId = new Guid("31c48452-dc45-4a2f-92ec-3d0b2a8a0ee9"),
                             Created = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "When Dumbledore arrives at Privet Drive one summer night to collect Harry Potter, his wand hand is blackened and shrivelled, but he does not reveal why. Secrets and suspicion are spreading through the wizarding world, and Hogwarts itself is not safe. Harry is convinced that Malfoy bears the Dark Mark: there is a Death Eater amongst them. Harry will need powerful magic and true friends as he explores Voldemort’s darkest secrets, and Dumbledore prepares him to face his destiny.",
                             ISBN = "978-1408855942",
@@ -212,7 +294,7 @@ namespace Library.Infrastructure.Migrations
                         },
                         new
                         {
-                            BookId = new Guid("d3e2de6e-9e1e-4d2e-b759-32f7d4263a46"),
+                            BookId = new Guid("8c26a7b6-8b94-4039-b81e-d664b444711a"),
                             Created = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "As he climbs into the sidecar of Hagrid’s motorbike and takes to the skies, leaving Privet Drive for the last time, Harry Potter knows that Lord Voldemort and the Death Eaters are not far behind. The protective charm that has kept Harry safe until now is now broken, but he cannot keep hiding. The Dark Lord is breathing fear into everything Harry loves, and to stop him Harry will have to find and destroy the remaining Horcruxes. The final battle must begin – Harry must stand and face his enemy.",
                             ISBN = "978-1408855959",
@@ -250,64 +332,264 @@ namespace Library.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            BookId = new Guid("d12bdef9-84f3-4de9-bdec-940f13971782"),
-                            AuthorId = new Guid("1d996191-7d04-498d-91bf-2fb4cfbb1d1a"),
+                            BookId = new Guid("d541e0ff-adc6-423c-af08-5825fb2f93b9"),
+                            AuthorId = new Guid("0775a1ad-4eec-4c4a-bddd-85f49b1bcabe"),
                             Created = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
-                            BookId = new Guid("deca4321-bcac-4116-849f-bbdd74483f87"),
-                            AuthorId = new Guid("ef0a6dd8-a451-4891-ae04-7d671ce0cac9"),
+                            BookId = new Guid("03e71245-0de5-48a0-b605-0ccddfc54e43"),
+                            AuthorId = new Guid("02ec09a0-463c-4c89-98d0-77e289bdab3c"),
                             Created = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
-                            BookId = new Guid("deca4321-bcac-4116-849f-bbdd74483f87"),
-                            AuthorId = new Guid("92d3c08e-335d-4a2e-8e73-ad4f8309146b"),
+                            BookId = new Guid("03e71245-0de5-48a0-b605-0ccddfc54e43"),
+                            AuthorId = new Guid("421349de-7aea-4d7a-b4bb-887da6300070"),
                             Created = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
-                            BookId = new Guid("52e692a7-28af-40b7-b732-a026ab869b0d"),
-                            AuthorId = new Guid("39b08695-8a86-4e29-a4c5-6d0cd6c66813"),
+                            BookId = new Guid("c57478cf-ae5a-408d-9b21-9d23c39b6d53"),
+                            AuthorId = new Guid("1a97a240-3b68-4c97-bfa0-08764059aa7c"),
                             Created = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
-                            BookId = new Guid("58275004-6db8-488c-8162-4454335bdf41"),
-                            AuthorId = new Guid("39b08695-8a86-4e29-a4c5-6d0cd6c66813"),
+                            BookId = new Guid("7f69e86b-14f7-40be-835f-21394e47bbc9"),
+                            AuthorId = new Guid("1a97a240-3b68-4c97-bfa0-08764059aa7c"),
                             Created = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
-                            BookId = new Guid("1a126438-9879-4b11-970f-e423e03a7ecc"),
-                            AuthorId = new Guid("39b08695-8a86-4e29-a4c5-6d0cd6c66813"),
+                            BookId = new Guid("8ef2172a-3e52-46d9-bff3-9d2881c5f721"),
+                            AuthorId = new Guid("1a97a240-3b68-4c97-bfa0-08764059aa7c"),
                             Created = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
-                            BookId = new Guid("313a997d-8aa5-4998-98e5-32b00fe5c21a"),
-                            AuthorId = new Guid("39b08695-8a86-4e29-a4c5-6d0cd6c66813"),
+                            BookId = new Guid("37ca9d6d-9f71-439a-8bdc-5f814e5975e6"),
+                            AuthorId = new Guid("1a97a240-3b68-4c97-bfa0-08764059aa7c"),
                             Created = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
-                            BookId = new Guid("257c09a0-7a94-4e08-8f73-93d64ec0fa56"),
-                            AuthorId = new Guid("39b08695-8a86-4e29-a4c5-6d0cd6c66813"),
+                            BookId = new Guid("c17ab212-156a-40d2-a871-5122223fd1d9"),
+                            AuthorId = new Guid("1a97a240-3b68-4c97-bfa0-08764059aa7c"),
                             Created = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
-                            BookId = new Guid("54c53b68-4384-4b5b-a0b6-e995fd61f439"),
-                            AuthorId = new Guid("39b08695-8a86-4e29-a4c5-6d0cd6c66813"),
+                            BookId = new Guid("31c48452-dc45-4a2f-92ec-3d0b2a8a0ee9"),
+                            AuthorId = new Guid("1a97a240-3b68-4c97-bfa0-08764059aa7c"),
                             Created = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
-                            BookId = new Guid("d3e2de6e-9e1e-4d2e-b759-32f7d4263a46"),
-                            AuthorId = new Guid("39b08695-8a86-4e29-a4c5-6d0cd6c66813"),
+                            BookId = new Guid("8c26a7b6-8b94-4039-b81e-d664b444711a"),
+                            AuthorId = new Guid("1a97a240-3b68-4c97-bfa0-08764059aa7c"),
                             Created = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
                         });
+                });
+
+            modelBuilder.Entity("Library.Infrastructure.Identity.ApplicationUser", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("AccessFailedCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Email")
+                        .HasColumnType("nvarchar(256)")
+                        .HasMaxLength(256);
+
+                    b.Property<bool>("EmailConfirmed")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("LockoutEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTimeOffset?>("LockoutEnd")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("NormalizedEmail")
+                        .HasColumnType("nvarchar(256)")
+                        .HasMaxLength(256);
+
+                    b.Property<string>("NormalizedUserName")
+                        .HasColumnType("nvarchar(256)")
+                        .HasMaxLength(256);
+
+                    b.Property<string>("PasswordHash")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("PhoneNumberConfirmed")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("SecurityStamp")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("TwoFactorEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("UserName")
+                        .HasColumnType("nvarchar(256)")
+                        .HasMaxLength(256);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NormalizedEmail")
+                        .HasName("EmailIndex");
+
+                    b.HasIndex("NormalizedUserName")
+                        .IsUnique()
+                        .HasName("UserNameIndex")
+                        .HasFilter("[NormalizedUserName] IS NOT NULL");
+
+                    b.ToTable("AspNetUsers");
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(256)")
+                        .HasMaxLength(256);
+
+                    b.Property<string>("NormalizedName")
+                        .HasColumnType("nvarchar(256)")
+                        .HasMaxLength(256);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NormalizedName")
+                        .IsUnique()
+                        .HasName("RoleNameIndex")
+                        .HasFilter("[NormalizedName] IS NOT NULL");
+
+                    b.ToTable("AspNetRoles");
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("ClaimType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ClaimValue")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RoleId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("AspNetRoleClaims");
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("ClaimType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ClaimValue")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AspNetUserClaims");
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
+                {
+                    b.Property<string>("LoginProvider")
+                        .HasColumnType("nvarchar(128)")
+                        .HasMaxLength(128);
+
+                    b.Property<string>("ProviderKey")
+                        .HasColumnType("nvarchar(128)")
+                        .HasMaxLength(128);
+
+                    b.Property<string>("ProviderDisplayName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("LoginProvider", "ProviderKey");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("AspNetUserLogins");
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("RoleId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("UserId", "RoleId");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("AspNetUserRoles");
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("LoginProvider")
+                        .HasColumnType("nvarchar(128)")
+                        .HasMaxLength(128);
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(128)")
+                        .HasMaxLength(128);
+
+                    b.Property<string>("Value")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("UserId", "LoginProvider", "Name");
+
+                    b.ToTable("AspNetUserTokens");
                 });
 
             modelBuilder.Entity("Library.Domain.Entities.Book", b =>
@@ -335,67 +617,67 @@ namespace Library.Infrastructure.Migrations
                             b1.HasData(
                                 new
                                 {
-                                    BookId = new Guid("d12bdef9-84f3-4de9-bdec-940f13971782"),
+                                    BookId = new Guid("d541e0ff-adc6-423c-af08-5825fb2f93b9"),
                                     Id = 1,
                                     Name = "Psychology"
                                 },
                                 new
                                 {
-                                    BookId = new Guid("d12bdef9-84f3-4de9-bdec-940f13971782"),
+                                    BookId = new Guid("d541e0ff-adc6-423c-af08-5825fb2f93b9"),
                                     Id = 2,
                                     Name = "Neuroscience"
                                 },
                                 new
                                 {
-                                    BookId = new Guid("deca4321-bcac-4116-849f-bbdd74483f87"),
+                                    BookId = new Guid("03e71245-0de5-48a0-b605-0ccddfc54e43"),
                                     Id = 3,
                                     Name = "Politics"
                                 },
                                 new
                                 {
-                                    BookId = new Guid("deca4321-bcac-4116-849f-bbdd74483f87"),
+                                    BookId = new Guid("03e71245-0de5-48a0-b605-0ccddfc54e43"),
                                     Id = 4,
                                     Name = "Thriller"
                                 },
                                 new
                                 {
-                                    BookId = new Guid("52e692a7-28af-40b7-b732-a026ab869b0d"),
+                                    BookId = new Guid("c57478cf-ae5a-408d-9b21-9d23c39b6d53"),
                                     Id = 5,
                                     Name = "Fantasy Fiction"
                                 },
                                 new
                                 {
-                                    BookId = new Guid("58275004-6db8-488c-8162-4454335bdf41"),
+                                    BookId = new Guid("7f69e86b-14f7-40be-835f-21394e47bbc9"),
                                     Id = 6,
                                     Name = "Fantasy Fiction"
                                 },
                                 new
                                 {
-                                    BookId = new Guid("1a126438-9879-4b11-970f-e423e03a7ecc"),
+                                    BookId = new Guid("8ef2172a-3e52-46d9-bff3-9d2881c5f721"),
                                     Id = 7,
                                     Name = "Fantasy Fiction"
                                 },
                                 new
                                 {
-                                    BookId = new Guid("313a997d-8aa5-4998-98e5-32b00fe5c21a"),
+                                    BookId = new Guid("37ca9d6d-9f71-439a-8bdc-5f814e5975e6"),
                                     Id = 8,
                                     Name = "Fantasy Fiction"
                                 },
                                 new
                                 {
-                                    BookId = new Guid("257c09a0-7a94-4e08-8f73-93d64ec0fa56"),
+                                    BookId = new Guid("c17ab212-156a-40d2-a871-5122223fd1d9"),
                                     Id = 9,
                                     Name = "Fantasy Fiction"
                                 },
                                 new
                                 {
-                                    BookId = new Guid("54c53b68-4384-4b5b-a0b6-e995fd61f439"),
+                                    BookId = new Guid("31c48452-dc45-4a2f-92ec-3d0b2a8a0ee9"),
                                     Id = 10,
                                     Name = "Fantasy Fiction"
                                 },
                                 new
                                 {
-                                    BookId = new Guid("d3e2de6e-9e1e-4d2e-b759-32f7d4263a46"),
+                                    BookId = new Guid("8c26a7b6-8b94-4039-b81e-d664b444711a"),
                                     Id = 11,
                                     Name = "Fantasy Fiction"
                                 });
@@ -419,47 +701,47 @@ namespace Library.Infrastructure.Migrations
                             b1.HasData(
                                 new
                                 {
-                                    BookId = new Guid("d12bdef9-84f3-4de9-bdec-940f13971782"),
+                                    BookId = new Guid("d541e0ff-adc6-423c-af08-5825fb2f93b9"),
                                     Name = "English"
                                 },
                                 new
                                 {
-                                    BookId = new Guid("deca4321-bcac-4116-849f-bbdd74483f87"),
+                                    BookId = new Guid("03e71245-0de5-48a0-b605-0ccddfc54e43"),
                                     Name = "English"
                                 },
                                 new
                                 {
-                                    BookId = new Guid("52e692a7-28af-40b7-b732-a026ab869b0d"),
+                                    BookId = new Guid("c57478cf-ae5a-408d-9b21-9d23c39b6d53"),
                                     Name = "English"
                                 },
                                 new
                                 {
-                                    BookId = new Guid("58275004-6db8-488c-8162-4454335bdf41"),
+                                    BookId = new Guid("7f69e86b-14f7-40be-835f-21394e47bbc9"),
                                     Name = "English"
                                 },
                                 new
                                 {
-                                    BookId = new Guid("1a126438-9879-4b11-970f-e423e03a7ecc"),
+                                    BookId = new Guid("8ef2172a-3e52-46d9-bff3-9d2881c5f721"),
                                     Name = "English"
                                 },
                                 new
                                 {
-                                    BookId = new Guid("313a997d-8aa5-4998-98e5-32b00fe5c21a"),
+                                    BookId = new Guid("37ca9d6d-9f71-439a-8bdc-5f814e5975e6"),
                                     Name = "English"
                                 },
                                 new
                                 {
-                                    BookId = new Guid("257c09a0-7a94-4e08-8f73-93d64ec0fa56"),
+                                    BookId = new Guid("c17ab212-156a-40d2-a871-5122223fd1d9"),
                                     Name = "English"
                                 },
                                 new
                                 {
-                                    BookId = new Guid("54c53b68-4384-4b5b-a0b6-e995fd61f439"),
+                                    BookId = new Guid("31c48452-dc45-4a2f-92ec-3d0b2a8a0ee9"),
                                     Name = "English"
                                 },
                                 new
                                 {
-                                    BookId = new Guid("d3e2de6e-9e1e-4d2e-b759-32f7d4263a46"),
+                                    BookId = new Guid("8c26a7b6-8b94-4039-b81e-d664b444711a"),
                                     Name = "English"
                                 });
                         });
@@ -476,6 +758,57 @@ namespace Library.Infrastructure.Migrations
                     b.HasOne("Library.Domain.Entities.Book", "Book")
                         .WithMany("BookAuthors")
                         .HasForeignKey("BookId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
+                {
+                    b.HasOne("Library.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
+                {
+                    b.HasOne("Library.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Library.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
+                {
+                    b.HasOne("Library.Infrastructure.Identity.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

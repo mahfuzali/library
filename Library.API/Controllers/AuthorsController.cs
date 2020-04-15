@@ -5,6 +5,7 @@ using Library.Application.Common.Helpers;
 using Library.Application.Dtos.Models;
 using Library.Domain.Entities;
 using Library.Infrastructure.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
@@ -21,6 +22,7 @@ namespace Library.API.Controllers
 {
     [ApiController]
     [Route("api/authors")]
+    [Authorize]
     //[HttpCacheExpiration(CacheLocation = CacheLocation.Public)]
     //[HttpCacheValidation(MustRevalidate = true)]
     public class AuthorsController : ControllerBase
@@ -89,7 +91,7 @@ namespace Library.API.Controllers
         }
 
         [HttpGet("{authorId}", Name = "GetAuthor")]
-        public IActionResult GetAuthor(Guid authorId, string fields)
+        public async Task<IActionResult> GetAuthor(Guid authorId, string fields)
         {
             if (!_propertyCheckerService.TypeHasProperties<AuthorDto>
                 (fields))
@@ -97,7 +99,7 @@ namespace Library.API.Controllers
                 return BadRequest();
             }
 
-            var authorFromRepo = _libraryRepository.GetAuthor(authorId);
+            var authorFromRepo = await _libraryRepository.GetAuthor(authorId);
 
             if (authorFromRepo == null)
             {
@@ -108,14 +110,15 @@ namespace Library.API.Controllers
         }
 
         [HttpGet("{authorId}/books")]
-        public ActionResult<IEnumerable<BookDto>> GetBooksForAuthor(Guid authorId)
+        public async Task<ActionResult<IEnumerable<BookDto>>> GetBooksForAuthor(Guid authorId)
         {
-            if (!_libraryRepository.AuthorExists(authorId))
+            bool checkAuthorExists = await _libraryRepository.AuthorExists(authorId);
+            if (!checkAuthorExists)
             {
                 return NotFound();
             }
 
-            var booksForAuthor = _libraryRepository.GetBooks(authorId);
+            var booksForAuthor = await _libraryRepository.GetBooks(authorId);
 
             //var book = _mapper.Map<IEnumerable<BookViewModel>>(booksForAuthor);
 
@@ -123,14 +126,16 @@ namespace Library.API.Controllers
         }
 
         [HttpGet("{authorId}/books/{bookId}", Name = "GetBookForAuthor")]
-        public ActionResult<BookViewModel> GetCourseForAuthor(Guid authorId, Guid bookId)
+        public async Task<ActionResult<BookViewModel>> GetCourseForAuthor(Guid authorId, Guid bookId)
         {
-            if (!_libraryRepository.AuthorExists(authorId))
+            bool checkAuthorExists = await _libraryRepository.AuthorExists(authorId);
+
+            if (!checkAuthorExists)
             {
                 return NotFound();
             }
 
-            var bookForAuthor = _libraryRepository.GetBook(authorId, bookId);
+            var bookForAuthor = await _libraryRepository.GetBook(authorId, bookId);
 
             if (bookForAuthor == null)
             {
@@ -141,21 +146,23 @@ namespace Library.API.Controllers
         }
 
         [HttpPost("{authorId}/books")]
-        public ActionResult<BookDto> CreateBookForAuthor(
+        public async Task<ActionResult<BookDto>> CreateBookForAuthor(
             Guid authorId, BookForCreationForAuthorDto book)
         {
-            if (!_libraryRepository.AuthorExists(authorId))
+            bool checkAuthorExists = await _libraryRepository.AuthorExists(authorId);
+
+            if (!checkAuthorExists)
             {
                 return NotFound();
             }
 
             var bookEntity = _mapper.Map<Book>(book);
 
-            var authorEntity = _libraryRepository.GetAuthor(authorId);
+            var authorEntity = await _libraryRepository.GetAuthor(authorId);
 
             _libraryRepository.AddBook(bookEntity);
             _libraryRepository.AddBookAuthor(bookEntity, authorEntity);
-            _libraryRepository.Save();
+            await _libraryRepository.SaveAsync();
 
             var bookToReturn = _mapper.Map<BookDto>(bookEntity);
             return CreatedAtRoute("GetBookForAuthor",
@@ -165,16 +172,18 @@ namespace Library.API.Controllers
 
 
         [HttpPatch("{authorId}/books/{bookId}")]
-        public ActionResult PartiallyUpdateCourseForAuthor(Guid authorId,
+        public async Task<IActionResult> PartiallyUpdateCourseForAuthor(Guid authorId,
             Guid bookId,
             JsonPatchDocument<BookForUpdateDto> patchDocument)
         {
-            if (!_libraryRepository.AuthorExists(authorId))
+            bool checkAuthorExists = await _libraryRepository.AuthorExists(authorId);
+
+            if (!checkAuthorExists)
             {
                 return NotFound();
             }
 
-            var bookForAuthorFromRepo = _libraryRepository.GetBook(authorId, bookId);
+            var bookForAuthorFromRepo = await _libraryRepository.GetBook(authorId, bookId);
 
             if (bookForAuthorFromRepo == null)
             {
@@ -190,7 +199,7 @@ namespace Library.API.Controllers
                 bookToAdd.BookId = bookId;
 
                 _libraryRepository.AddBook(authorId, bookToAdd);
-                _libraryRepository.Save();
+                await _libraryRepository.SaveAsync();
 
                 var bookToReturn = _mapper.Map<BookDto>(bookToAdd);
 
@@ -212,7 +221,7 @@ namespace Library.API.Controllers
 
             _libraryRepository.UpdateBook(bookForAuthorFromRepo);
 
-            _libraryRepository.Save();
+            await _libraryRepository.SaveAsync();
 
             return NoContent();
         }
@@ -227,14 +236,16 @@ namespace Library.API.Controllers
 
 
         [HttpDelete("{authorId}")]
-        public ActionResult DeleteBook(Guid authorId)
+        public async Task<ActionResult> DeleteBook(Guid authorId)
         {
-            if (!_libraryRepository.AuthorExists(authorId))
+            bool checkAuthorExists = await _libraryRepository.AuthorExists(authorId);
+
+            if (!checkAuthorExists)
             {
                 return NotFound();
             }
 
-            var authorFromRepo = _libraryRepository.GetAuthor(authorId);
+            var authorFromRepo = await _libraryRepository.GetAuthor(authorId);
 
             if (authorFromRepo == null)
             {
@@ -242,7 +253,7 @@ namespace Library.API.Controllers
             }
 
             _libraryRepository.DeleteAuthor(authorFromRepo);
-            _libraryRepository.Save();
+            await _libraryRepository.SaveAsync();
 
             return NoContent();
         }

@@ -28,7 +28,7 @@ namespace Library.API.Controllers
         }
 
         [HttpGet("({ids})", Name = "GetAuthorCollection")]
-        public IActionResult GetAuthorCollection(
+        public async Task<IActionResult> GetAuthorCollection(
         [FromRoute]
         [ModelBinder(BinderType = typeof(ArrayModelBinder))] IEnumerable<Guid> ids)
         {
@@ -37,7 +37,7 @@ namespace Library.API.Controllers
                 return BadRequest();
             }
 
-            var authorEntities = _libraryRepository.GetAuthors(ids);
+            var authorEntities = await _libraryRepository.GetAuthors(ids);
 
             if (ids.Count() != authorEntities.Count())
             {

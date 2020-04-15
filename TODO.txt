@@ -1,0 +1,7 @@
+https://github.com/Elfocrash/Youtube.AspNetCoreTutorial/tree/master/Tweetbook
+
+Clean ASP.NET Core API using MediatR and CQRS | Setup
+https://www.youtube.com/watch?v=YzOBrVlthMk
+
+Microservice Architecture with ASP.NET Core
+https://www.youtube.com/watch?v=RyHDWlIq6vI

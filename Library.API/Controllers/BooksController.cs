@@ -4,6 +4,7 @@ using Library.Application.Common.Helpers;
 using Library.Application.Dtos.Models;
 using Library.Domain.Entities;
 using Library.Infrastructure.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
@@ -13,11 +14,13 @@ using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace Library.API.Controllers
 {
     [ApiController]
     [Route("api/books")]
+    [Authorize]
     public class BooksController : ControllerBase
     {
         private readonly ILibraryRepository _libraryRepository;
@@ -123,7 +126,7 @@ namespace Library.API.Controllers
                 _libraryRepository.AddBookAuthor(bookEntity, authorEntity);
             }
 
-            _libraryRepository.Save();
+            _libraryRepository.SaveAsync();
 
             var bookToReturn = _mapper.Map<BookDto>(bookEntity);
             return CreatedAtRoute("GetBook",
@@ -132,14 +135,16 @@ namespace Library.API.Controllers
         }
 
         [HttpPut("{bookId}")]
-        public IActionResult UpdateBook(Guid bookId, BookForUpdateDto book)
+        public async Task<IActionResult> UpdateBook(Guid bookId, BookForUpdateDto book)
         {
-            if (!_libraryRepository.BookExists(bookId))
+            bool checkBookExists = await _libraryRepository.BookExists(bookId);
+
+            if (!checkBookExists)
             {
                 return NotFound();
             }
 
-            var bookEntity = _libraryRepository.GetBook(bookId);
+            var bookEntity = await _libraryRepository.GetBook(bookId);
 
             if (bookEntity == null)
             { 
@@ -157,7 +162,7 @@ namespace Library.API.Controllers
                     _libraryRepository.AddBookAuthor(bookToAdd, authorEntity);
                 }
 
-                _libraryRepository.Save();
+                await _libraryRepository.SaveAsync();
 
                 var bookToReturn = _mapper.Map<BookDto>(bookToAdd);
                 return CreatedAtRoute("GetBook",
@@ -168,7 +173,7 @@ namespace Library.API.Controllers
             _mapper.Map(book, bookEntity);
             _libraryRepository.UpdateBook(bookEntity);
             
-            _libraryRepository.Save();
+            await _libraryRepository.SaveAsync();
             return NoContent();
         }
 
@@ -244,14 +249,16 @@ namespace Library.API.Controllers
         */
 
         [HttpDelete("{bookId}")]
-        public ActionResult DeleteBook(Guid bookId)
+        public async Task<IActionResult> DeleteBook(Guid bookId)
         {
-            if (!_libraryRepository.BookExists(bookId))
+            bool checkBookExists = await _libraryRepository.BookExists(bookId);
+
+            if (!checkBookExists)
             {
                 return NotFound();
             }
 
-            var bookFromRepo = _libraryRepository.GetBook(bookId);
+            var bookFromRepo = await _libraryRepository.GetBook(bookId);
 
             if (bookFromRepo == null)
             {
@@ -259,7 +266,7 @@ namespace Library.API.Controllers
             }
 
             _libraryRepository.DeleteBook(bookFromRepo);
-            _libraryRepository.Save();
+            await _libraryRepository.SaveAsync();
 
             return NoContent();
         }

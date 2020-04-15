@@ -9,26 +9,34 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
+using Library.Infrastructure.Identity;
 
 namespace Library.API
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public async static Task Main(string[] args)
         {
             var host = CreateHostBuilder(args).Build();
 
             // migrate the database.  Best practice = in Main, using service scope
             using (var scope = host.Services.CreateScope())
             {
+                var services = scope.ServiceProvider;
+
                 try
                 {
-                    var context = scope.ServiceProvider.GetService<ApplicationDbContext>();
+                    var context = services.GetRequiredService<ApplicationDbContext>();
                     // for demo purposes, delete the database & migrate on startup so 
                     // we can start with a clean slate
 
                     context.Database.EnsureDeleted();
                     context.Database.Migrate();
+
+                    var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
+
+                    await ApplicationDbContextSeed.SeedAsync(userManager);
                 }
                 catch (Exception ex)
                 {
@@ -38,7 +46,7 @@ namespace Library.API
             }
 
             // run the web app
-            host.Run();
+            await host.RunAsync();
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>

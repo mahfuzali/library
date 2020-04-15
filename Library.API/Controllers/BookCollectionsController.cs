@@ -28,7 +28,7 @@ namespace Library.API.Controllers
         }
 
         [HttpGet("({ids})", Name = "GetBookCollection")]
-        public IActionResult GetBookCollection(
+        public async Task<IActionResult> GetBookCollection(
         [FromRoute]
         [ModelBinder(BinderType = typeof(ArrayModelBinder))] IEnumerable<Guid> ids)
         {
@@ -37,7 +37,7 @@ namespace Library.API.Controllers
                 return BadRequest();
             }
 
-            var bookEntities = _libraryRepository.GetBooks(ids);
+            var bookEntities = await _libraryRepository.GetBooks(ids);
 
             if (ids.Count() != bookEntities.Count())
             {
@@ -51,7 +51,7 @@ namespace Library.API.Controllers
 
 
         [HttpPost]
-        public ActionResult<IEnumerable<BookDto>> CreateAuthorCollection(
+        public async Task<ActionResult<IEnumerable<BookDto>>> CreateAuthorCollection(
             IEnumerable<BookForCreationDto> bookCollection)
         {
             /*
@@ -87,7 +87,7 @@ namespace Library.API.Controllers
                     _libraryRepository.AddBookAuthor(bookEntity, authorEntity);
                 }
 
-                _libraryRepository.Save();
+                await _libraryRepository.SaveAsync();
             }
 
             var bookCollectionToReturn = _mapper.Map<IEnumerable<BookDto>>(books.AsEnumerable());

@@ -11,12 +11,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Library.Infrastructure.Services
 {
     public class LibraryRepository : ILibraryRepository, IDisposable
     {
-        private readonly ApplicationDbContext _context;
+        private ApplicationDbContext _context;
         private readonly IPropertyMappingService _propertyMappingService;
 
         public LibraryRepository(ApplicationDbContext context, IPropertyMappingService propertyMappingService)
@@ -27,25 +28,26 @@ namespace Library.Infrastructure.Services
         }
 
         #region Authors
-        public Author GetAuthor(Guid authorId)
+        public async Task<Author> GetAuthor(Guid authorId)
         {
             if (authorId == Guid.Empty)
             {
                 throw new ArgumentNullException(nameof(authorId));
             }
 
-            return _context.Authors
+            return await _context.Authors
                         .Include(a => a.BookAuthors)
                         .ThenInclude(ba => ba.Book)
-                    .FirstOrDefault(a => a.AuthorId == authorId);
+                    .FirstOrDefaultAsync(a => a.AuthorId == authorId);
         }
 
-        public IEnumerable<Author> GetAuthors()
+        public async Task<IEnumerable<Author>> GetAuthors()
         {
-            return _context.Authors
+            return await _context.Authors
                 .Include(a => a.BookAuthors)
-                    .ThenInclude(ba => ba.Book);
+                    .ThenInclude(ba => ba.Book).ToListAsync();
         }
+
         /*
         public IEnumerable<Author> GetAuthors(AuthorsResourceParameters authorsResourceParameters)
         {
@@ -81,6 +83,7 @@ namespace Library.Infrastructure.Services
             return collectionOfAuthors.ToList();
         }
         */
+
         public PagedList<Author> GetAuthors(AuthorsResourceParameters authorsResourceParameters)
         {
             if (authorsResourceParameters == null)
@@ -117,28 +120,28 @@ namespace Library.Infrastructure.Services
                     authorPropertyMappingDictionary);
             }
 
-            return PagedList<Author>.Create(collectionOfAuthors,
+            return  PagedList<Author>.Create(collectionOfAuthors,
                         authorsResourceParameters.PageNumber,
                         authorsResourceParameters.PageSize);
         }
 
-        public IEnumerable<Author> GetAuthors(IEnumerable<Guid> authorIds)
+        public async Task<IEnumerable<Author>> GetAuthors(IEnumerable<Guid> authorIds)
         {
             if (authorIds == null)
             {
                 throw new ArgumentNullException(nameof(authorIds));
             }
 
-            return _context.Authors
+            return await _context.Authors
                 .Where(a => authorIds.Contains(a.AuthorId))
                     .Include(a => a.BookAuthors)
                     .ThenInclude(ba => ba.Book)
                 .OrderBy(a => a.FirstName)
                 .OrderBy(a => a.LastName)
-                .ToList();
+                .ToListAsync();
         }
 
-        public Author GetAuthor(Guid authorId, Guid bookId)
+        public async Task<Author> GetAuthor(Guid authorId, Guid bookId)
         {
             if (authorId == Guid.Empty)
             {
@@ -152,10 +155,10 @@ namespace Library.Infrastructure.Services
 
             var bookAuthor = _context.BookAuthors.FirstOrDefault(b => b.AuthorId == authorId && b.BookId == bookId);
 
-            return _context.Authors
+            return await _context.Authors
                         .Include(ba => ba.BookAuthors)
                             .ThenInclude(b => b.Book)
-                    .FirstOrDefault(a => a.AuthorId == bookAuthor.AuthorId);
+                    .FirstOrDefaultAsync(a => a.AuthorId == bookAuthor.AuthorId);
         }
         
         public void AddAuthor(Author author)
@@ -190,24 +193,24 @@ namespace Library.Infrastructure.Services
             _context.Authors.Remove(author);
         }
 
-        public bool AuthorExists(Guid authorId)
+        public async Task<bool> AuthorExists(Guid authorId)
         {
             if (authorId == Guid.Empty)
             {
                 throw new ArgumentNullException(nameof(authorId));
             }
 
-            return _context.Authors.Any(author => author.AuthorId == authorId);
+            return await _context.Authors.AnyAsync(author => author.AuthorId == authorId);
         }
 
-        public bool AuthorExists(string firstName, string lastName, DateTimeOffset dateOfBirth) 
+        public async Task<bool> AuthorExists(string firstName, string lastName, DateTimeOffset dateOfBirth) 
         {
             if (string.IsNullOrWhiteSpace(firstName) && string.IsNullOrWhiteSpace(lastName) && dateOfBirth == null)
             {
                 throw new ArgumentNullException("Invalid input");
             }
 
-            return _context.Authors.Any(author =>
+            return await _context.Authors.AnyAsync(author =>
                                             author.FirstName == firstName &&
                                             author.LastName == lastName && 
                                             author.DateOfBirth == dateOfBirth);
@@ -242,20 +245,20 @@ namespace Library.Infrastructure.Services
 
         #region Books
 
-        public Book GetBook(Guid bookId)
+        public async Task<Book> GetBook(Guid bookId)
         {
             if (bookId == Guid.Empty)
             {
                 throw new ArgumentNullException(nameof(bookId));
             }
 
-            return _context.Books
+            return await _context.Books
                         .Include(a => a.BookAuthors)
                         .ThenInclude(ba => ba.Author)
-                    .FirstOrDefault(a => a.BookId == bookId);
+                    .FirstOrDefaultAsync(a => a.BookId == bookId);
         }
 
-        public Book GetBook(Guid authorId, Guid bookId)
+        public async Task<Book> GetBook(Guid authorId, Guid bookId)
         {
             if (authorId == Guid.Empty)
             {
@@ -267,36 +270,36 @@ namespace Library.Infrastructure.Services
                 throw new ArgumentNullException(nameof(bookId));
             }
 
-            var book = _context.BookAuthors.FirstOrDefault(b => b.AuthorId == authorId && b.BookId == bookId);
+            var book = await _context.BookAuthors.FirstOrDefaultAsync(b => b.AuthorId == authorId && b.BookId == bookId);
 
-            return _context.Books
+            return await _context.Books
                         .Include(ba => ba.BookAuthors)
                             .ThenInclude(a => a.Author)
-                    .FirstOrDefault(b => b.BookId == book.BookId);
-
+                    .FirstOrDefaultAsync(b => b.BookId == book.BookId);
         }
 
-        public IEnumerable<Book> GetBooks(IEnumerable<Guid> bookIds)
+        public async Task<IEnumerable<Book>> GetBooks(IEnumerable<Guid> bookIds)
         {
             if (bookIds == null)
             {
                 throw new ArgumentNullException(nameof(bookIds));
             }
 
-            return _context.Books
-                .Where(b => bookIds.Contains(b.BookId))
-                    .Include(b => b.BookAuthors)
-                    .ThenInclude(ba => ba.Book)
-                .OrderBy(b => b.Title)
-                .ToList();
+            return await _context.Books
+                            .Where(b => bookIds.Contains(b.BookId))
+                                .Include(b => b.BookAuthors)
+                                .ThenInclude(ba => ba.Book)
+                            .OrderBy(b => b.Title)
+                            .ToListAsync();
         }
 
-        public IEnumerable<Book> GetBooks()
+        public async Task<IEnumerable<Book>> GetBooks()
         {
-            return _context.Books
+            return await _context.Books
                         .Include(a => a.BookAuthors)
-                        .ThenInclude(ba => ba.Author);
+                        .ThenInclude(ba => ba.Author).ToListAsync();
         }
+        
         /*
         public IEnumerable<Book> GetBooks(BooksResourceParameters booksResourceParameters)
         {
@@ -376,7 +379,8 @@ namespace Library.Infrastructure.Services
                 booksResourceParameters.PageNumber,
                 booksResourceParameters.PageSize);
         }
-        public IEnumerable<Book> GetBooks(Guid authorId)
+
+        public async Task<IEnumerable<Book>> GetBooks(Guid authorId)
         {
             if (authorId == Guid.Empty)
             {
@@ -386,9 +390,9 @@ namespace Library.Infrastructure.Services
             var collectionOfBookAuthors = _context.BookAuthors
                                                 .Where(author => author.AuthorId == authorId).Select(a => a.BookId).ToList();
 
-            return _context.Books.Where(b => collectionOfBookAuthors.Contains(b.BookId))
+            return await _context.Books.Where(b => collectionOfBookAuthors.Contains(b.BookId))
                                         .Include(a => a.BookAuthors)
-                                            .ThenInclude(ba => ba.Author);
+                                            .ThenInclude(ba => ba.Author).ToListAsync();
         }
 
         public void AddBook(Book book)
@@ -452,24 +456,24 @@ namespace Library.Infrastructure.Services
             _context.Books.Remove(book);
         }
 
-        public bool BookExists(Guid bookId)
+        public async Task<bool> BookExists(Guid bookId)
         {
             if (bookId == Guid.Empty)
             {
                 throw new ArgumentNullException(nameof(bookId));
             }
 
-            return _context.Books.Any(book => book.BookId == bookId);
+            return await _context.Books.AnyAsync(book => book.BookId == bookId);
         }
 
-        public bool BookExists(string title, string isbn, string publiser) 
+        public async Task<bool> BookExists(string title, string isbn, string publiser) 
         {
             if (string.IsNullOrWhiteSpace(title) && string.IsNullOrWhiteSpace(isbn) && string.IsNullOrWhiteSpace(publiser))
             {
                 throw new ArgumentNullException("Invalid input");
             }
 
-            return _context.Books.Any(book => 
+            return await _context.Books.AnyAsync(book => 
                                             book.Title == title && 
                                             book.ISBN == isbn && 
                                             book.Publisher == publiser);
@@ -477,12 +481,10 @@ namespace Library.Infrastructure.Services
 
         #endregion
 
-        public bool Save()
+        public async Task<bool> SaveAsync()
         {
-            return (_context.SaveChanges() >= 0);
+            return (await _context.SaveChangesAsync() >= 0);
         }
-
-
 
         public void Dispose()
         {
@@ -494,10 +496,14 @@ namespace Library.Infrastructure.Services
         {
             if (disposing)
             {
-                // dispose resources when needed
+                if (_context != null)
+                {
+                    _context.Dispose();
+                    _context = null;
+                }
+
             }
         }
-
 
     }
 }
