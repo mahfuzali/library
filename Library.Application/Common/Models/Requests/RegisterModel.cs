@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
 
-namespace Library.Application.Common.Models
+namespace Library.Application.Common.Models.Requests
 {
     public class RegisterModel
     {

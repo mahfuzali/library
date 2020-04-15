@@ -6,9 +6,11 @@ using Library.Infrastructure.Identity;
 using Microsoft.AspNetCore.ApiAuthorization.IdentityServer;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Reflection;
 using System.Text;
 using System.Threading;
@@ -20,6 +22,7 @@ namespace Library.Infrastructure.Persistence
     {
         private readonly ICurrentUserService _currentUserService;
         private readonly IDateTime _dateTime;
+        private IDbContextTransaction _currentTransaction;
 
         public ApplicationDbContext(
             DbContextOptions options,
@@ -55,9 +58,78 @@ namespace Library.Infrastructure.Persistence
             return base.SaveChangesAsync(cancellationToken);
         }
 
+        public async Task BeginTransactionAsync()
+        {
+            if (_currentTransaction != null)
+            {
+                return;
+            }
+
+            _currentTransaction = await base.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted).ConfigureAwait(false);
+        }
+
+        public async Task CommitTransactionAsync()
+        {
+            try
+            {
+                await SaveChangesAsync().ConfigureAwait(false);
+
+                _currentTransaction?.Commit();
+            }
+            catch
+            {
+                RollbackTransaction();
+                throw;
+            }
+            finally
+            {
+                if (_currentTransaction != null)
+                {
+                    _currentTransaction.Dispose();
+                    _currentTransaction = null;
+                }
+            }
+        }
+
+        public void RollbackTransaction()
+        {
+            try
+            {
+                _currentTransaction?.Rollback();
+            }
+            finally
+            {
+                if (_currentTransaction != null)
+                {
+                    _currentTransaction.Dispose();
+                    _currentTransaction = null;
+                }
+            }
+        }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder) 
         {
+            modelBuilder.Entity<BookAuthor>()
+                .HasKey(x => new { x.BookId, x.AuthorId });
 
+            modelBuilder.Entity<BookAuthor>()
+                .HasOne<Book>(pt => pt.Book)
+                .WithMany(p => p.BookAuthors)
+                .HasForeignKey(pt => pt.BookId);
+
+            modelBuilder.Entity<BookAuthor>()
+                .HasOne<Author>(pt => pt.Author)
+                .WithMany(t => t.BookAuthors)
+                .HasForeignKey(pt => pt.AuthorId);
+
+            modelBuilder.Entity<Book>()
+                .OwnsOne(l => l.Language);
+
+            modelBuilder.Entity<Book>()
+                .OwnsMany(l => l.Genres);
+
+
+            /*
             modelBuilder.Entity<BookAuthor>()
                .HasKey(x => new { x.BookId, x.AuthorId });
 
@@ -71,6 +143,7 @@ namespace Library.Infrastructure.Persistence
                 .WithMany(t => t.BookAuthors)
                 .HasForeignKey(pt => pt.AuthorId);
 
+            
             Book b1 = new Book()
             {
                 BookId = Guid.NewGuid(),
@@ -305,6 +378,10 @@ namespace Library.Infrastructure.Persistence
                     new { Id = 10, BookId = h6.BookId, Name = "Fantasy Fiction" },
                     new { Id = 11, BookId = h7.BookId, Name = "Fantasy Fiction" }
             );
+
+            */
+
+            //SaveChangesAsync();
 
             modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
 

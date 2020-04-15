@@ -1,4 +1,4 @@
-﻿using Library.Application.Common.Models;
+﻿using Library.Application.Common.Models.Requests;
 using Library.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
