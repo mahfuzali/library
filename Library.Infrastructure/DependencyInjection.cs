@@ -4,6 +4,7 @@ using IdentityServer4.Test;
 using Library.Application.Common.Interfaces;
 using Library.Infrastructure.Identity;
 using Library.Infrastructure.Persistence;
+using Library.Infrastructure.Repositories;
 using Library.Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -40,7 +41,10 @@ namespace Library.Infrastructure
 
             services.AddScoped<IApplicationDbContext>(provider => provider.GetService<ApplicationDbContext>());
 
+            // remove
             services.AddScoped<ILibraryRepository, LibraryRepository>();
+            
+            services.AddScoped<IRepositoryWrapper, RepositoryWrapper>();
 
             services.AddIdentity<ApplicationUser, IdentityRole>()
                     //.AddRoles<IdentityRole>()

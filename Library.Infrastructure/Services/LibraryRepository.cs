@@ -48,42 +48,6 @@ namespace Library.Infrastructure.Services
                     .ThenInclude(ba => ba.Book).ToListAsync();
         }
 
-        /*
-        public IEnumerable<Author> GetAuthors(AuthorsResourceParameters authorsResourceParameters)
-        {
-            if (authorsResourceParameters == null)
-            {
-                throw new ArgumentNullException(nameof(authorsResourceParameters));
-            }
-
-            if (string.IsNullOrWhiteSpace(authorsResourceParameters.Name)
-                && string.IsNullOrWhiteSpace(authorsResourceParameters.SearchQuery))
-            {
-                return GetAuthors();
-            }
-
-            var collectionOfAuthors = _context.Authors
-                                        .Include(ba => ba.BookAuthors)
-                                            .ThenInclude(b => b.Book) as IQueryable<Author>;
-
-            if (!string.IsNullOrWhiteSpace(authorsResourceParameters.Name))
-            {
-                var name = authorsResourceParameters.Name.Trim();
-                collectionOfAuthors = collectionOfAuthors.Where(author => author.FirstName == name && author.LastName == name);
-            }
-
-            if (!string.IsNullOrWhiteSpace(authorsResourceParameters.SearchQuery))
-            {
-                var searchQuery = authorsResourceParameters.SearchQuery.Trim();
-                collectionOfAuthors = collectionOfAuthors.Where(author => 
-                    author.FirstName.Contains(searchQuery) || 
-                    author.LastName.Contains(searchQuery)
-                );
-            }
-            return collectionOfAuthors.ToList();
-        }
-        */
-
         public PagedList<Author> GetAuthors(AuthorsResourceParameters authorsResourceParameters)
         {
             if (authorsResourceParameters == null)
@@ -300,43 +264,6 @@ namespace Library.Infrastructure.Services
                         .ThenInclude(ba => ba.Author).ToListAsync();
         }
         
-        /*
-        public IEnumerable<Book> GetBooks(BooksResourceParameters booksResourceParameters)
-        {
-            if (booksResourceParameters == null)
-            {
-                throw new ArgumentNullException(nameof(booksResourceParameters));
-            }
-
-            if (string.IsNullOrWhiteSpace(booksResourceParameters.Title)
-                && string.IsNullOrWhiteSpace(booksResourceParameters.SearchQuery))
-            {
-                return GetBooks();
-            }
-
-            var collectionOfBooks = _context.Books
-                                        .Include(a => a.BookAuthors)
-                                            .ThenInclude(ba => ba.Author) as IQueryable<Book>;
-
-            if (!string.IsNullOrWhiteSpace(booksResourceParameters.Title))
-            {
-                var title = booksResourceParameters.Title.Trim();
-                collectionOfBooks = collectionOfBooks.Where(book => book.Title == title);
-            }
-
-            if (!string.IsNullOrWhiteSpace(booksResourceParameters.SearchQuery))
-            {
-                var searchQuery = booksResourceParameters.SearchQuery.Trim();
-                collectionOfBooks = collectionOfBooks.Where(book => book.Title.Contains(searchQuery)
-                    || book.Description.Contains(searchQuery)
-                    || book.Publisher.Contains(searchQuery)
-                //|| book.Language.Name.Contains(searchQuery)
-                );
-            }
-            return collectionOfBooks.ToList();
-        }
-        */
-
         public PagedList<Book> GetBooks(BooksResourceParameters booksResourceParameters)
         {
             if (booksResourceParameters == null)
