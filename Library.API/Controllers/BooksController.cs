@@ -98,16 +98,16 @@ namespace Library.API.Controllers
         }
 
         [HttpGet("{bookId}", Name = "GetBook")]
-        public IActionResult GetBook(Guid bookId, string fields)
+        public async Task<IActionResult> GetBook(Guid bookId)
         {
-            var bookFromRepo = _libraryRepository.GetBook(bookId);
+            var bookFromRepo = await _libraryRepository.GetBook(bookId);
 
             if (bookFromRepo == null)
             {
                 return NotFound();
             }
 
-            return Ok(_mapper.Map<BookDto>(bookFromRepo).ShapeData(fields));
+            return Ok(_mapper.Map<BookDto>(bookFromRepo));
         }
 
         [HttpPost]

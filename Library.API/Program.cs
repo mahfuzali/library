@@ -41,7 +41,7 @@ namespace Library.API
                     var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
 
                     await ApplicationDbContextSeed.SeedDefaultUserAsync(userManager);
-                    await ApplicationDbContextSeed.SeedSampleDataAsync(context);
+                    ApplicationDbContextSeed.SeedSampleDataAsync(context);
 
                 }
                 catch (Exception ex)
