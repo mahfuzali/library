@@ -27,65 +27,21 @@ namespace Library.Infrastructure.Repositories
             get { return _context as ApplicationDbContext; }
         }
 
-        public void AddAuthor(Author author)
-        {
-            if (author == null)
-            {
-                throw new ArgumentNullException(nameof(author));
-            }
 
-            author.AuthorId = Guid.NewGuid();
+        //public async Task<Author> GetAuthor(Guid authorId)
+        //{
+        //    if (authorId == Guid.Empty)
+        //    {
+        //        throw new ArgumentNullException(nameof(authorId));
+        //    }
 
-            ApplicationDbContext.Authors.Add(author);
-        }
+        //    return await ApplicationDbContext.Authors
+        //                    .Include(a => a.BookAuthors)
+        //                        .ThenInclude(ba => ba.Book)
+        //                .FirstOrDefaultAsync(a => a.AuthorId == authorId);
+        //}
 
-        public async Task<bool> AuthorExists(Guid authorId)
-        {
-            if (authorId == Guid.Empty)
-            {
-                throw new ArgumentNullException(nameof(authorId));
-            }
-
-            return await ApplicationDbContext.Authors.AnyAsync(author => author.AuthorId == authorId);
-        }
-
-        public async Task<bool> AuthorExists(string firstName, string lastName, DateTimeOffset dateOfBirth)
-        {
-            if (string.IsNullOrWhiteSpace(firstName) && string.IsNullOrWhiteSpace(lastName) && dateOfBirth == null)
-            {
-                throw new ArgumentNullException("Invalid input");
-            }
-
-            return await ApplicationDbContext.Authors.AnyAsync(author =>
-                                            author.FirstName == firstName &&
-                                            author.LastName == lastName &&
-                                            author.DateOfBirth == dateOfBirth);
-        }
-
-        public void DeleteAuthor(Author author)
-        {
-            if (author == null)
-            {
-                throw new ArgumentNullException(nameof(author));
-            }
-
-            ApplicationDbContext.Authors.Remove(author);
-        }
-
-        public async Task<Author> GetAuthor(Guid authorId)
-        {
-            if (authorId == Guid.Empty)
-            {
-                throw new ArgumentNullException(nameof(authorId));
-            }
-
-            return await ApplicationDbContext.Authors
-                            .Include(a => a.BookAuthors)
-                                .ThenInclude(ba => ba.Book)
-                        .FirstOrDefaultAsync(a => a.AuthorId == authorId);
-        }
-
-        public async Task<Author> GetAuthor(Guid authorId, Guid bookId)
+        public async Task<Author> GetAuthor(Guid authorId, Guid? bookId)
         {
             if (authorId == Guid.Empty)
             {
@@ -168,14 +124,5 @@ namespace Library.Infrastructure.Repositories
                         authorsResourceParameters.PageSize);
         }
 
-        public void UpdateAuthor(Author author)
-        {
-            if (author == null)
-            {
-                throw new ArgumentNullException(nameof(author));
-            }
-
-            ApplicationDbContext.Authors.Update(author);
-        }
     }
 }

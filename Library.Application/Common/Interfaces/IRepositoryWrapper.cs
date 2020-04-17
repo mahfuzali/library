@@ -10,6 +10,6 @@ namespace Library.Application.Common.Interfaces
         IBookRepository Books { get; }
         IAuthorRepository Authors { get; }
         IBookAuthorRepository BookAuthors { get; }
-        Task<int> Save();
+        //Task<int> Save();
     }
 }

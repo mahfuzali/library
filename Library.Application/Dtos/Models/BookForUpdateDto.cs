@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Net.Http;
 using System.Text;
 
 namespace Library.Application.Dtos.Models
@@ -10,5 +11,9 @@ namespace Library.Application.Dtos.Models
         [Required(ErrorMessage = "You should fill out a description.")]
         public override string Description { get => base.Description; set => base.Description = value; }
 
+        public static implicit operator BookForUpdateDto(HttpResponseMessage v)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -50,6 +50,7 @@ namespace Library.FunctionalTests.Api
 
             Assert.NotNull(result);
             Assert.Equal(SeedData.book1.Title, result.Title);
+            Assert.True(result.Authors.Count() > 0);
         }
 
         [Fact]
@@ -98,6 +99,9 @@ namespace Library.FunctionalTests.Api
 
             Assert.NotNull(result);
             Assert.Equal(newBook.Title, result.Title);
+            Assert.True(result.Authors.Count() == newBook.Authors.Count());
+            Assert.True(result.Genres.Count() == newBook.Genres.Count());
+            Assert.True(result.Language == newBook.Language);
         }
 
         [Fact]

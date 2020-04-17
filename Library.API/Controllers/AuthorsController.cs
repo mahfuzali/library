@@ -110,7 +110,7 @@ namespace Library.API.Controllers
         }
 
         [HttpGet("{authorId}/books")]
-        public async Task<ActionResult<IEnumerable<BookDto>>> GetBooksForAuthor(Guid authorId)
+        public async Task<ActionResult<IEnumerable<BookViewModel>>> GetBooksForAuthor(Guid authorId)
         {
             bool checkAuthorExists = await _libraryRepository.AuthorExists(authorId);
             if (!checkAuthorExists)
@@ -119,8 +119,6 @@ namespace Library.API.Controllers
             }
 
             var booksForAuthor = await _libraryRepository.GetBooks(authorId);
-
-            //var book = _mapper.Map<IEnumerable<BookViewModel>>(booksForAuthor);
 
             return Ok(_mapper.Map<IEnumerable<BookViewModel>>(booksForAuthor));
         }

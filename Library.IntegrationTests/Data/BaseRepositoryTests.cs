@@ -30,25 +30,11 @@ namespace Library.IntegrationTests.Data
             builder.UseInMemoryDatabase("LibraryDbTests")
                    .UseInternalServiceProvider(serviceProvider);
 
+            
             return builder.Options;
         }
 
-        //protected BookRepository GetBookRepository()
-        //{
-        //    var options = CreateNewContextOptions();
-        //    var mockCurrentUserService = new Mock<ICurrentUserService>();
-        //    var mockDateTime = new Mock<IDateTime>();
-        //    //var mockCurrentTransaction = new Mock<IDbContextTransaction>();
-
-        //    _dbContext = new ApplicationDbContext(
-        //        options, mockCurrentUserService.Object, mockDateTime.Object);
-
-        //    var mockPropertyMappingService = new Mock<IPropertyMappingService>();
-
-        //    return new BookRepository(_dbContext, mockPropertyMappingService.Object);
-        //}
-
-        protected AuthorRepository GetRepository()
+        protected RepositoryWrapper GetRepository()
         {
             var options = CreateNewContextOptions();
             var mockCurrentUserService = new Mock<ICurrentUserService>();
@@ -59,7 +45,7 @@ namespace Library.IntegrationTests.Data
 
             var mockPropertyMappingService = new Mock<IPropertyMappingService>();
 
-            return new AuthorRepository(_dbContext, mockPropertyMappingService.Object);
+            return new RepositoryWrapper(_dbContext, mockPropertyMappingService.Object);
         }
     }
 }

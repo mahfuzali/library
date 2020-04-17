@@ -20,28 +20,28 @@ namespace Library.Infrastructure.Repositories
             get { return _context as ApplicationDbContext; }
         }
 
-        public void AddBookAuthor(Book book, Author author)
-        {
-            if (book == null)
-            {
-                throw new ArgumentNullException(nameof(book));
-            }
+        //public void AddBookAuthor(Book book, Author author)
+        //{
+        //    if (book == null)
+        //    {
+        //        throw new ArgumentNullException(nameof(book));
+        //    }
 
-            if (author == null)
-            {
-                throw new ArgumentNullException(nameof(author));
-            }
+        //    if (author == null)
+        //    {
+        //        throw new ArgumentNullException(nameof(author));
+        //    }
 
-            BookAuthor bookAuthor = new BookAuthor
-            {
-                BookId = book.BookId,
-                Book = book,
-                AuthorId = author.AuthorId,
-                Author = author
-            };
+        //    BookAuthor bookAuthor = new BookAuthor
+        //    {
+        //        BookId = book.BookId,
+        //        Book = book,
+        //        AuthorId = author.AuthorId,
+        //        Author = author
+        //    };
 
-            ApplicationDbContext.BookAuthors.Add(bookAuthor);
-        }
+        //    ApplicationDbContext.BookAuthors.Add(bookAuthor);
+        //}
 
     }
 }

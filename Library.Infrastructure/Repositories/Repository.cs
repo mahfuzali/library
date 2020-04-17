@@ -75,7 +75,7 @@ namespace Library.Infrastructure.Repositories
 
         public TEntity SingleOrDefault(Expression<Func<TEntity, bool>> predicate)
         {
-            return _context.Set<TEntity>().Where(predicate).SingleOrDefault();
+            return _context.Set<TEntity>().Where(predicate).AsNoTracking().SingleOrDefault();
         }
     }
 }

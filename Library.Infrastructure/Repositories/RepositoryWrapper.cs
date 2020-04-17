@@ -15,9 +15,12 @@ namespace Library.Infrastructure.Repositories
 
         public RepositoryWrapper(ApplicationDbContext context, IPropertyMappingService propertyMappingService)
         {
-            _context = context;
+            _context = context ?? throw new ArgumentNullException(nameof(context));
+            _propertyMappingService = propertyMappingService ??
+                                            throw new ArgumentNullException(nameof(propertyMappingService));
             Books = new BookRepository(_context, _propertyMappingService);
             Authors = new AuthorRepository(_context, _propertyMappingService);
+            BookAuthors = new BookAuthorRepository(_context, _propertyMappingService);
         }
 
         public IAuthorRepository Authors { get; private set; }
@@ -26,10 +29,10 @@ namespace Library.Infrastructure.Repositories
 
         public IBookAuthorRepository BookAuthors { get; private set; }
 
-        public Task<int> Save()
-        {
-            return _context.SaveChangesAsync();
-        }
+        //public Task<int> Save()
+        //{
+        //    return _context.SaveChangesAsync();
+        //}
 
         public void Dispose()
         {

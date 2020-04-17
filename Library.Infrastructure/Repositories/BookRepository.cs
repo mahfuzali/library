@@ -27,17 +27,6 @@ namespace Library.Infrastructure.Repositories
             get { return _context as ApplicationDbContext; }
         }
 
-        public void AddBook(Book book)
-        {
-            if (book == null)
-            {
-                throw new ArgumentNullException(nameof(book));
-            }
-
-            book.BookId = Guid.NewGuid();
-
-            ApplicationDbContext.Books.Add(book);
-        }
 
         public void AddBook(Guid authorId, Book book)
         {
@@ -66,39 +55,6 @@ namespace Library.Infrastructure.Repositories
             ApplicationDbContext.Books.Add(book);
 
             ApplicationDbContext.BookAuthors.Add(ba);
-        }
-
-        public async Task<bool> BookExists(Guid bookId)
-        {
-            if (bookId == Guid.Empty)
-            {
-                throw new ArgumentNullException(nameof(bookId));
-            }
-
-            return await ApplicationDbContext.Books.AnyAsync(book => book.BookId == bookId);
-        }
-
-        public async Task<bool> BookExists(string title, string isbn, string publiser)
-        {
-            if (string.IsNullOrWhiteSpace(title) && string.IsNullOrWhiteSpace(isbn) && string.IsNullOrWhiteSpace(publiser))
-            {
-                throw new ArgumentNullException("Invalid input");
-            }
-
-            return await ApplicationDbContext.Books.AnyAsync(book =>
-                                            book.Title == title &&
-                                            book.ISBN == isbn &&
-                                            book.Publisher == publiser);
-        }
-
-        public void DeleteBook(Book book)
-        {
-            if (book == null)
-            {
-                throw new ArgumentNullException(nameof(book));
-            }
-
-            ApplicationDbContext.Books.Remove(book);
         }
 
         public async Task<Book> GetBook(Guid bookId)
@@ -212,16 +168,6 @@ namespace Library.Infrastructure.Repositories
             return PagedList<Book>.Create(collectionOfBooks,
                 booksResourceParameters.PageNumber,
                 booksResourceParameters.PageSize);
-        }
-
-        public void UpdateBook(Book book)
-        {
-            if (book == null)
-            {
-                throw new ArgumentNullException(nameof(book));
-            }
-
-            ApplicationDbContext.Books.Update(book);
         }
 
     }

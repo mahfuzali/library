@@ -42,17 +42,6 @@ namespace Library.API.Controllers
                 throw new ArgumentNullException(nameof(propertyCheckerService));
         }
 
-        /*
-        [HttpGet()]
-        [HttpHead]
-        public IActionResult GetBooks(
-            [FromQuery] BooksResourceParameters booksResourceParameters)
-        {
-            var booksFromRepo = _libraryRepository.GetBooks(booksResourceParameters);
-            return Ok(_mapper.Map<IEnumerable<BookDto>>(booksFromRepo));
-        }
-        */
-
         [HttpGet(Name = "GetBooks")]
         [HttpHead]
         public IActionResult GetBooks(
@@ -183,70 +172,6 @@ namespace Library.API.Controllers
             Response.Headers.Add("Allow", "GET,OPTIONS,POST");
             return Ok();
         }
-
-
-        /*
-        [HttpPatch("{bookId}")]
-        public ActionResult PartiallyUpdateBook(Guid authorId,
-            Guid bookId,
-            JsonPatchDocument<BookForUpdateDto> patchDocument)
-        {
-            if (!_libraryRepository.AuthorExists(authorId))
-            {
-                return NotFound();
-            }
-
-            var bookForAuthorFromRepo = _libraryRepository.GetBook(authorId, bookId);
-
-            if (bookForAuthorFromRepo == null)
-            {
-                var bookDto = new BookForUpdateDto();
-                patchDocument.ApplyTo(bookDto);
-
-                if (!TryValidateModel(bookDto))
-                {
-                    return ValidationProblem(ModelState);
-                }
-
-                var bookToAdd = _mapper.Map<Book>(bookDto);
-                bookToAdd.BookId = bookId;
-
-                _libraryRepository.AddBook(authorId, bookToAdd);
-                _libraryRepository.Save();
-
-                var bookToReturn = _mapper.Map<BookDto>(bookToAdd);
-
-                return CreatedAtRoute("GetBook",
-                    new { bookId = bookToReturn.BookId },
-                    bookToReturn);
-            }
-
-            var bookToPatch = _mapper.Map<BookForUpdateDto>(bookForAuthorFromRepo);
-            // add validation
-            patchDocument.ApplyTo(bookToPatch);
-
-            if (!TryValidateModel(bookToPatch))
-            {
-                return ValidationProblem(ModelState);
-            }
-
-            _mapper.Map(bookToPatch, bookForAuthorFromRepo);
-
-            _libraryRepository.UpdateBook(bookForAuthorFromRepo);
-
-            _libraryRepository.Save();
-
-            return NoContent();
-        } 
-
-        public override ActionResult ValidationProblem(
-        [ActionResultObjectValue] ModelStateDictionary modelStateDictionary)
-        {
-            var options = HttpContext.RequestServices
-                .GetRequiredService<IOptions<ApiBehaviorOptions>>();
-            return (ActionResult)options.Value.InvalidModelStateResponseFactory(ControllerContext);
-        }
-        */
 
         [HttpDelete("{bookId}")]
         public async Task<IActionResult> DeleteBook(Guid bookId)
