@@ -27,7 +27,6 @@ namespace Library.Infrastructure.Repositories
             get { return _context as ApplicationDbContext; }
         }
 
-
         public void AddBook(Guid authorId, Book book)
         {
             if (authorId == Guid.Empty)
@@ -70,7 +69,7 @@ namespace Library.Infrastructure.Repositories
                             .FirstOrDefaultAsync(a => a.BookId == bookId);
         }
 
-        public async Task<Book> GetBook(Guid authorId, Guid bookId)
+        public async Task<Book> GetABookByAnAuthor(Guid authorId, Guid bookId)
         {
             if (authorId == Guid.Empty)
             {
@@ -82,19 +81,21 @@ namespace Library.Infrastructure.Repositories
                 throw new ArgumentNullException(nameof(bookId));
             }
 
-            var book = await ApplicationDbContext.BookAuthors.FirstOrDefaultAsync(b => b.AuthorId == authorId && b.BookId == bookId);
+            var book = await ApplicationDbContext.BookAuthors
+                                .FirstOrDefaultAsync(b => b.AuthorId == authorId && b.BookId == bookId);
 
             return await ApplicationDbContext.Books
                         .Include(ba => ba.BookAuthors)
                             .ThenInclude(a => a.Author)
-                    .FirstOrDefaultAsync(b => b.BookId == book.BookId);
+                        .FirstOrDefaultAsync(b => b.BookId == book.BookId);
         }
 
         public async Task<IEnumerable<Book>> GetBooks()
         {
             return await ApplicationDbContext.Books
                         .Include(a => a.BookAuthors)
-                        .ThenInclude(ba => ba.Author).ToListAsync();
+                            .ThenInclude(ba => ba.Author)
+                        .ToListAsync();
         }
 
         public async Task<IEnumerable<Book>> GetBooks(Guid authorId)
@@ -106,13 +107,12 @@ namespace Library.Infrastructure.Repositories
 
             var collectionOfBookAuthors = ApplicationDbContext.BookAuthors
                                             .Where(author => author.AuthorId == authorId)
-                                            .Select(a => a.BookId).ToList();
+                                                .Select(a => a.BookId).ToList();
 
-            return await ApplicationDbContext.Books
-                                            .Where(b => collectionOfBookAuthors.Contains(b.BookId))
-                                                .Include(a => a.BookAuthors)
-                                                    .ThenInclude(ba => ba.Author)
-                                                    .ToListAsync();
+            return await ApplicationDbContext.Books.Where(b => collectionOfBookAuthors.Contains(b.BookId))
+                                    .Include(a => a.BookAuthors)
+                                        .ThenInclude(ba => ba.Author)
+                                    .ToListAsync();
         }
 
         public async Task<IEnumerable<Book>> GetBooks(IEnumerable<Guid> bookIds)
@@ -170,5 +170,19 @@ namespace Library.Infrastructure.Repositories
                 booksResourceParameters.PageSize);
         }
 
+        public async Task<IEnumerable<Book>> GetBooksOfAnAuthor(Guid authorId)
+        {
+            if (authorId == Guid.Empty)
+            {
+                throw new ArgumentNullException(nameof(authorId));
+            }
+
+            var getAuthor = ApplicationDbContext.BookAuthors.Where(author => author.AuthorId == authorId).Select(a => a.BookId).ToList();
+
+            return await ApplicationDbContext.Books.Where(b => getAuthor.Contains(b.BookId))
+                                                    .Include(a => a.BookAuthors)
+                                                        .ThenInclude(ba => ba.Author)
+                                                    .ToListAsync();
+        }
     }
 }

@@ -42,7 +42,7 @@ namespace Library.Infrastructure
             services.AddScoped<IApplicationDbContext>(provider => provider.GetService<ApplicationDbContext>());
 
             // remove
-            services.AddScoped<ILibraryRepository, LibraryRepository>();
+            //services.AddScoped<ILibraryRepository, LibraryRepository>();
             
             services.AddScoped<IRepositoryWrapper, RepositoryWrapper>();
 

@@ -11,18 +11,21 @@ namespace Library.Application.Common.Interfaces
     public interface IBookRepository : IRepository<Book>
     {
         Task<IEnumerable<Book>> GetBooks();
-        
+
         Task<IEnumerable<Book>> GetBooks(Guid authorId);
-        
+
         Task<IEnumerable<Book>> GetBooks(IEnumerable<Guid> bookIds);
 
         PagedList<Book> GetBooks(BooksResourceParameters booksResourceParameters);
-        
+
         Task<Book> GetBook(Guid bookId);
-        
-        Task<Book> GetBook(Guid authorId, Guid bookId);
-                        
+
+        Task<Book> GetABookByAnAuthor(Guid authorId, Guid bookId);
+
         void AddBook(Guid authorId, Book book);
+
+        Task<IEnumerable<Book>> GetBooksOfAnAuthor(Guid authorId);
+
 
     }
 }

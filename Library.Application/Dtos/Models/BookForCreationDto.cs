@@ -4,9 +4,9 @@ using System.Text;
 
 namespace Library.Application.Dtos.Models
 {
-    public class BookForCreationDto : BookForManipulationDto
+    public class BookForCreationDto //: BookForManipulationDto
     {
-        /*
+        /* */
         public string Title { get; set; }
 
         public string Description { get; set; }
@@ -22,6 +22,6 @@ namespace Library.Application.Dtos.Models
 
         public ICollection<AuthorForCreationDto> Authors { get; set; }
                 = new List<AuthorForCreationDto>();
-        */
+       
     }
 }

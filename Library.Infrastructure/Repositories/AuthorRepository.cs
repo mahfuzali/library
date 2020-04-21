@@ -27,21 +27,7 @@ namespace Library.Infrastructure.Repositories
             get { return _context as ApplicationDbContext; }
         }
 
-
-        //public async Task<Author> GetAuthor(Guid authorId)
-        //{
-        //    if (authorId == Guid.Empty)
-        //    {
-        //        throw new ArgumentNullException(nameof(authorId));
-        //    }
-
-        //    return await ApplicationDbContext.Authors
-        //                    .Include(a => a.BookAuthors)
-        //                        .ThenInclude(ba => ba.Book)
-        //                .FirstOrDefaultAsync(a => a.AuthorId == authorId);
-        //}
-
-        public async Task<Author> GetAuthor(Guid authorId, Guid? bookId)
+        public async Task<Author> GetAnAuthorByABook(Guid authorId, Guid? bookId)
         {
             if (authorId == Guid.Empty)
             {
@@ -92,8 +78,8 @@ namespace Library.Infrastructure.Repositories
             }
 
             var collectionOfAuthors = ApplicationDbContext.Authors
-                                        .Include(ba => ba.BookAuthors)
-                                            .ThenInclude(b => b.Book) as IQueryable<Author>;
+                                                .Include(ba => ba.BookAuthors)
+                                                    .ThenInclude(b => b.Book) as IQueryable<Author>;
 
             if (!string.IsNullOrWhiteSpace(authorsResourceParameters.Name))
             {
@@ -123,6 +109,7 @@ namespace Library.Infrastructure.Repositories
                         authorsResourceParameters.PageNumber,
                         authorsResourceParameters.PageSize);
         }
+
 
     }
 }

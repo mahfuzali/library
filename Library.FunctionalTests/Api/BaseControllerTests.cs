@@ -20,13 +20,6 @@ namespace Library.FunctionalTests.Api
             _client = factory.CreateClient();
         }
 
-        //[Fact]
-        //public async Task ReturnsAuthTokenTest()
-        //{
-        //    var result = await GetJwtAsync();
-        //    Assert.True(result is string);
-        //}
-
         public async Task<string> GetJwtAsync()
         {
             var json = JsonConvert.SerializeObject(new LoginModel()

@@ -16,7 +16,6 @@ namespace Library.Application.Dtos.Profiles
                 .ForMember(
                     dest => dest.Authors,
                     opt => opt.MapFrom(src => src.BookAuthors.Select(ba => ba.Author)))
-                /**/
                 .ForMember(
                     dest => dest.Genres,
                     opt => opt.MapFrom(src => src.Genres.Select(ba => ba.Name)))
@@ -34,6 +33,19 @@ namespace Library.Application.Dtos.Profiles
 
 
             CreateMap<Book, BookForCreationDto>()
+                .ForMember(
+                    dest => dest.Authors,
+                    opt => opt.MapFrom(src => src.BookAuthors.Select(ba => ba.Author)))
+                .ForMember(
+                    dest => dest.Genres,
+                    opt => opt.MapFrom(src => src.Genres.Select(ba => ba.Name)))
+                .ForMember(
+                    dest => dest.Language,
+                    opt => opt.MapFrom(src => src.Language.Name))
+                .ReverseMap();
+
+
+            CreateMap<Book, BookForManipulationDto>()
                 .ForMember(
                     dest => dest.Authors,
                     opt => opt.MapFrom(src => src.BookAuthors.Select(ba => ba.Author)))

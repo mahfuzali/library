@@ -1,9 +1,8 @@
 ﻿using Library.API;
 using Library.Application.Authors.Models;
-using Library.Application.Common.Models.Requests;
 using Library.Application.Dtos.Models;
-using Library.Domain.Entities;
 using Library.Infrastructure.Persistence;
+using Microsoft.AspNetCore.JsonPatch;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -20,7 +19,7 @@ namespace Library.FunctionalTests.Api
     public class AuthorsControllerTests : BaseControllerTests
     {
         public AuthorsControllerTests(CustomWebApplicationFactory<Startup> factory)
-            : base(factory)
+        : base(factory)
         {
         }
 
@@ -89,9 +88,8 @@ namespace Library.FunctionalTests.Api
             Assert.Equal(SeedData.harryPotterBook1.Title, result.Title);
         }
 
-
         [Fact]
-        public async Task AddAnBookOfAnAuthorTest()
+        public async Task AddABookOfAnAuthorTest()
         {
             BookForCreationForAuthorDto newBook = new BookForCreationForAuthorDto()
             {
@@ -125,39 +123,13 @@ namespace Library.FunctionalTests.Api
             Assert.True(result.Language == newBook.Language);
         }
 
-
         [Fact]
-        public async Task UpdateABookViaPatachTest()
+        public async Task UpdateABookViaPatchTest()
         {
-            //BookForUpdateDto book = new BookForUpdateDto()
-            //{
-            //    Title = SeedData.book1.Title,
-            //    Description = "Test Description",
-            //    Publisher = SeedData.book1.Publisher,
-            //    ISBN = SeedData.book1.ISBN,
-            //    Genres = SeedData.book1.Genres.Select(g => g.Name).ToList(),
-            //    Language = SeedData.book1.Language,
-            //    Authors = new List<AuthorForCreationDto>()
-            //    {
-            //        new AuthorForCreationDto()
-            //        {
-            //            FirstName = SeedData.author1.FirstName,
-            //            LastName = SeedData.author1.LastName,
-            //            DateOfBirth = SeedData.author1.DateOfBirth
-            //        }
-            //    }
-            //};
+            var patchDoc = new JsonPatchDocument<BookForUpdateDto>();
+            patchDoc.Replace(b => b.Title, "Updated title");
 
-
-            PatchModel patchBook = new PatchModel()
-            {
-                Op = "replace",
-                Path = "/title",
-                Value = "Updated title"
-            };
-
-
-            var json = JsonConvert.SerializeObject(patchBook);
+            var json = JsonConvert.SerializeObject(patchDoc);
             var stringContent = new StringContent(json, UnicodeEncoding.UTF8, "application/json-patch+json");
 
             _client.DefaultRequestHeaders.Authorization =
@@ -173,7 +145,6 @@ namespace Library.FunctionalTests.Api
             Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
         }
 
-
         [Fact]
         public async Task DeleteAnAuthorTest()
         {
@@ -185,7 +156,22 @@ namespace Library.FunctionalTests.Api
             response.EnsureSuccessStatusCode();
 
             Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+        }
 
+        [Fact]
+        public async Task ReturnsAuthorCollectionsTest()
+        {
+            _client.DefaultRequestHeaders.Authorization =
+                            new AuthenticationHeaderValue("Bearer", await GetJwtAsync());
+
+
+            var response = await _client.GetAsync($"/api/authors/collection/({SeedData.author1.AuthorId},{SeedData.harryPotterAuthor.AuthorId})");
+
+            response.EnsureSuccessStatusCode();
+            var stringResponse = await response.Content.ReadAsStringAsync();
+            var result = JsonConvert.DeserializeObject<IEnumerable<AuthorDto>>(stringResponse).ToList();
+
+            Assert.Equal(2, result.Count());
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Library.Application.Books.ResourceParameters;
 using Library.Application.Common.Helpers;
+using Library.Application.Common.Interfaces;
 using Library.Application.Dtos.Models;
 using Library.Domain.Entities;
 using Library.Infrastructure.Services;
@@ -13,6 +14,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 
@@ -23,23 +25,25 @@ namespace Library.API.Controllers
     [Authorize]
     public class BooksController : ControllerBase
     {
-        private readonly ILibraryRepository _libraryRepository;
         private readonly IMapper _mapper;
         private readonly IPropertyMappingService _propertyMappingService;
         private readonly IPropertyCheckerService _propertyCheckerService;
 
-        public BooksController(ILibraryRepository libraryRepository, 
-            IMapper mapper, IPropertyMappingService propertyMappingService,
-            IPropertyCheckerService propertyCheckerService)
+        private readonly IRepositoryWrapper _repositoryWrapper;
+
+        public BooksController(IMapper mapper, IPropertyMappingService propertyMappingService,
+            IPropertyCheckerService propertyCheckerService,
+            IRepositoryWrapper repositoryWrapper)
         {
-            _libraryRepository = libraryRepository ??
-                throw new ArgumentNullException(nameof(libraryRepository));
             _mapper = mapper ??
                 throw new ArgumentNullException(nameof(mapper));
             _propertyMappingService = propertyMappingService ??
                 throw new ArgumentNullException(nameof(propertyMappingService));
             _propertyCheckerService = propertyCheckerService ??
                 throw new ArgumentNullException(nameof(propertyCheckerService));
+
+            _repositoryWrapper = repositoryWrapper ??
+                throw new ArgumentNullException(nameof(repositoryWrapper));
         }
 
         [HttpGet(Name = "GetBooks")]
@@ -59,7 +63,7 @@ namespace Library.API.Controllers
                 return BadRequest();
             }
 
-            var booksFromRepo = _libraryRepository.GetBooks(booksResourceParameters);
+            var booksFromRepo = _repositoryWrapper.Books.GetBooks(booksResourceParameters);
 
             var previousPageLink = booksFromRepo.HasPrevious ?
                 CreateBooksResourceUri(booksResourceParameters,
@@ -87,9 +91,9 @@ namespace Library.API.Controllers
         }
 
         [HttpGet("{bookId}", Name = "GetBook")]
-        public async Task<IActionResult> GetBook(Guid bookId)
+        public async Task<IActionResult> GetBookAsync(Guid bookId)
         {
-            var bookFromRepo = await _libraryRepository.GetBook(bookId);
+            var bookFromRepo = await _repositoryWrapper.Books.GetBook(bookId);
 
             if (bookFromRepo == null)
             {
@@ -103,19 +107,28 @@ namespace Library.API.Controllers
         public ActionResult<BookDto> CreateBook(BookForCreationDto book)
         {
             var bookEntity = _mapper.Map<Book>(book);
-                        
-            _libraryRepository.AddBook(bookEntity);
 
-            foreach (var author in book.Authors)
-            { 
-                var authorEntity = _mapper.Map<Author>(author);
-                _libraryRepository.AddAuthor(authorEntity);
-                //_libraryRepository.Save();
-
-                _libraryRepository.AddBookAuthor(bookEntity, authorEntity);
+            if (!TryValidateModel(bookEntity))
+            {
+                return ValidationProblem();
             }
 
-            _libraryRepository.SaveAsync();
+            _repositoryWrapper.Books.Add(bookEntity);
+
+            foreach (var author in book.Authors)
+            {
+                var authorEntity = _mapper.Map<Author>(author);
+                _repositoryWrapper.Authors.Add(authorEntity);
+
+                BookAuthor bookAuthorEntity = new BookAuthor()
+                {
+                    BookId = bookEntity.BookId,
+                    Book = bookEntity,
+                    AuthorId = authorEntity.AuthorId,
+                    Author = authorEntity
+                };
+                _repositoryWrapper.BookAuthors.Add(bookAuthorEntity);
+            }
 
             var bookToReturn = _mapper.Map<BookDto>(bookEntity);
             return CreatedAtRoute("GetBook",
@@ -126,32 +139,39 @@ namespace Library.API.Controllers
         [HttpPut("{bookId}")]
         public async Task<IActionResult> UpdateBook(Guid bookId, BookForUpdateDto book)
         {
-            bool checkBookExists = await _libraryRepository.BookExists(bookId);
+            Book checkBookExists = _repositoryWrapper.Books.Get(bookId);
 
-            if (!checkBookExists)
+            if (checkBookExists == null)
             {
                 return NotFound();
             }
 
-            var bookEntity = await _libraryRepository.GetBook(bookId);
+            var bookEntity = await _repositoryWrapper.Books.GetBook(bookId);
+
 
             if (bookEntity == null)
-            { 
+            {
                 var bookToAdd = _mapper.Map<Book>(book);
 
                 bookToAdd.BookId = bookId;
 
-                _libraryRepository.AddBook(bookToAdd);
+                _repositoryWrapper.Books.Add(bookToAdd);
 
                 foreach (var author in book.Authors)
                 {
                     var authorEntity = _mapper.Map<Author>(author);
-                    _libraryRepository.AddAuthor(authorEntity);
+                    _repositoryWrapper.Authors.Add(authorEntity);
 
-                    _libraryRepository.AddBookAuthor(bookToAdd, authorEntity);
+                    BookAuthor bookAuthor = new BookAuthor()
+                    {
+                        BookId = bookToAdd.BookId,
+                        Book = bookToAdd,
+                        AuthorId = authorEntity.AuthorId,
+                        Author = authorEntity
+                    };
+
+                    _repositoryWrapper.BookAuthors.Add(bookAuthor);
                 }
-
-                await _libraryRepository.SaveAsync();
 
                 var bookToReturn = _mapper.Map<BookDto>(bookToAdd);
                 return CreatedAtRoute("GetBook",
@@ -160,9 +180,14 @@ namespace Library.API.Controllers
             }
 
             _mapper.Map(book, bookEntity);
-            _libraryRepository.UpdateBook(bookEntity);
-            
-            await _libraryRepository.SaveAsync();
+            _repositoryWrapper.Books.Update(bookEntity);
+
+            foreach (var author in book.Authors)
+            {
+                var authorEntity = _mapper.Map<Author>(author);
+                _repositoryWrapper.Authors.Update(authorEntity);
+            }
+
             return NoContent();
         }
 
@@ -174,26 +199,111 @@ namespace Library.API.Controllers
         }
 
         [HttpDelete("{bookId}")]
-        public async Task<IActionResult> DeleteBook(Guid bookId)
+        public IActionResult DeleteBook(Guid bookId)
         {
-            bool checkBookExists = await _libraryRepository.BookExists(bookId);
+            Book checkBookExists = _repositoryWrapper.Books.Get(bookId);
 
-            if (!checkBookExists)
+            if (checkBookExists == null)
             {
                 return NotFound();
             }
 
-            var bookFromRepo = await _libraryRepository.GetBook(bookId);
-
-            if (bookFromRepo == null)
-            {
-                return NotFound();
-            }
-
-            _libraryRepository.DeleteBook(bookFromRepo);
-            await _libraryRepository.SaveAsync();
+            _repositoryWrapper.Books.Remove(checkBookExists);
 
             return NoContent();
+        }
+
+
+        [HttpGet("collection/({ids})", Name = "GetBookCollection")]
+        public async Task<IActionResult> GetBookCollection(
+        [FromRoute]
+        [ModelBinder(BinderType = typeof(ArrayModelBinder))] IEnumerable<Guid> ids)
+        {
+            if (ids == null)
+            {
+                return BadRequest();
+            }
+
+            var bookEntities = await _repositoryWrapper.Books.GetBooks(ids);
+
+            if (ids.Count() != bookEntities.Count())
+            {
+                return NotFound();
+            }
+
+            var authorsToReturn = _mapper.Map<IEnumerable<BookDto>>(bookEntities);
+
+            return Ok(authorsToReturn);
+        }
+
+
+        [HttpPost("collection")]
+        public ActionResult<IEnumerable<BookDto>> CreateBookCollection(
+            IEnumerable<BookForCreationDto> bookCollection)
+        {
+            //IList<Book> books = new List<Book>();
+
+            //foreach (var book in bookCollection)
+            //{
+            //    var bookEntity = _mapper.Map<Book>(book);
+            //    books.Add(bookEntity);
+
+            //    _repositoryWrapper.Books.Add(bookEntity);
+
+            //    foreach (var author in book.Authors)
+            //    {
+            //        var authorEntity = _mapper.Map<Author>(author);
+
+            //        _repositoryWrapper.Authors.Add(authorEntity);
+
+            //        BookAuthor bookAuthor = new BookAuthor()
+            //        {
+            //            BookId = bookEntity.BookId,
+            //            Book = bookEntity,
+            //            AuthorId = authorEntity.AuthorId,
+            //            Author = authorEntity
+            //        };
+
+            //        _repositoryWrapper.BookAuthors.Add(bookAuthor);
+            //    }
+            //}
+
+            //var bookCollectionToReturn = _mapper.Map<IEnumerable<BookDto>>(books.AsEnumerable());
+            //var idsAsString = string.Join(",", bookCollectionToReturn.Select(b => b.BookId));
+            //return CreatedAtRoute("GetBookCollection",
+            // new { ids = idsAsString },
+            // bookCollectionToReturn);
+
+
+            IList<Book> books = new List<Book>();
+
+            foreach (var book in bookCollection)
+            {
+                var bookEntity = _mapper.Map<Book>(book);
+                _repositoryWrapper.Books.Add(bookEntity);
+                books.Add(bookEntity);
+
+                foreach (var author in book.Authors)
+                {
+                    var authorEntity = _mapper.Map<Author>(author);
+                    _repositoryWrapper.Authors.Add(authorEntity);
+                    
+                    BookAuthor bookAuthor = new BookAuthor()
+                    {
+                        BookId = bookEntity.BookId,
+                        Book = bookEntity,
+                        AuthorId = authorEntity.AuthorId,
+                        Author = authorEntity
+                    };
+
+                    _repositoryWrapper.BookAuthors.Add(bookAuthor);
+                }
+            }
+
+            var bookCollectionToReturn = _mapper.Map<IEnumerable<BookDto>>(books.AsEnumerable());
+            var idsAsString = string.Join(",", books);
+            return CreatedAtRoute("GetBookCollection",
+             new { ids = idsAsString }, bookCollectionToReturn);
         }
 
         private string CreateBooksResourceUri(
