@@ -27,7 +27,6 @@ namespace Library.API.Controllers
         }
 
         [HttpPost(Name = "Login")]
-        [Route("login")]
         public async Task<IActionResult> Login(LoginModel model)
         {
             var user = await _userManager.FindByNameAsync(model.Username);
@@ -59,18 +58,18 @@ namespace Library.API.Controllers
             return Unauthorized();
         }
 
-        [HttpPost]
-        [Route("register")]
-        public async Task<IActionResult> Register(RegisterModel model)
-        {
-            var newUser = new ApplicationUser { 
-                UserName = model.Username, 
-                SecurityStamp = Guid.NewGuid().ToString(), 
-                Email = model.Email };
+        //[HttpPost]
+        //[Route("register")]
+        //public async Task<IActionResult> Register(RegisterModel model)
+        //{
+        //    var newUser = new ApplicationUser { 
+        //        UserName = model.Username, 
+        //        SecurityStamp = Guid.NewGuid().ToString(), 
+        //        Email = model.Email };
 
-            var createUser = await _userManager.CreateAsync(newUser, model.Password);
+        //    var createUser = await _userManager.CreateAsync(newUser, model.Password);
 
-            return Ok();
-        }
+        //    return Ok();
+        //}
     }
 }

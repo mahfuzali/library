@@ -1,28 +1,22 @@
 using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Linq;
-using System.Threading.Tasks;
 using Library.Infrastructure.Persistence;
 using Library.Infrastructure.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Library.Application;
 using Newtonsoft.Json.Serialization;
 using Library.Application.Common.Interfaces;
 using Library.Infrastructure;
-using NSwag;
-using NSwag.Generation.Processors.Security;
 using Library.API.Services;
-
+using System.Linq;
+using System.Collections.Generic;
+using Swashbuckle.AspNetCore.Swagger;
+using Microsoft.OpenApi.Models;
 
 namespace Library.API
 {
@@ -50,7 +44,6 @@ namespace Library.API
 
             services.AddHealthChecks()
                 .AddDbContextCheck<ApplicationDbContext>();
-
 
             services.AddResponseCaching(options =>
             {
@@ -101,21 +94,43 @@ namespace Library.API
                 options.SuppressModelStateInvalidFilter = true;
             });
 
-            //services.AddSwaggerDocument();
+        #region Swagger Documentation
 
-            services.AddOpenApiDocument(configure =>
+            services.AddSwaggerGen(c =>
             {
-                configure.Title = "Library API";
-                configure.AddSecurity("JWT", Enumerable.Empty<string>(), new OpenApiSecurityScheme
+                c.SwaggerDoc("v1.0", new OpenApiInfo { Title = "Main API v1.0", Version = "v1.0" });
+
+                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
-                    Type = OpenApiSecuritySchemeType.ApiKey,
+                    Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
                     Name = "Authorization",
-                    In = OpenApiSecurityApiKeyLocation.Header,
-                    Description = "Type into the textbox: Bearer {your JWT token}."
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.ApiKey,
+                    Scheme = "Bearer"
                 });
 
-                configure.OperationProcessors.Add(new AspNetCoreOperationSecurityScopeProcessor("JWT"));
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement()
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            },
+                            Scheme = "oauth2",
+                            Name = "Bearer",
+                            In = ParameterLocation.Header,
+
+                        },
+                        new List<string>()
+                    }
+                });
             });
+
+        #endregion
+
         }
 
 
@@ -143,10 +158,12 @@ namespace Library.API
             app.UseHealthChecks("/health");
             app.UseHttpsRedirection();
             app.UseStaticFiles();
-            
 
-            app.UseOpenApi();
-            app.UseSwaggerUi3();
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1.0/swagger.json", "Versioned API v1.0");
+            });
 
             app.UseRouting();
 

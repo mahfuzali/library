@@ -2,6 +2,7 @@
 using IdentityServer4.Models;
 using IdentityServer4.Test;
 using Library.Application.Common.Interfaces;
+using Library.Infrastructure.Common.Helpers;
 using Library.Infrastructure.Identity;
 using Library.Infrastructure.Persistence;
 using Library.Infrastructure.Repositories;
@@ -40,9 +41,6 @@ namespace Library.Infrastructure
             }
 
             services.AddScoped<IApplicationDbContext>(provider => provider.GetService<ApplicationDbContext>());
-
-            // remove
-            //services.AddScoped<ILibraryRepository, LibraryRepository>();
             
             services.AddScoped<IRepositoryWrapper, RepositoryWrapper>();
 
@@ -50,6 +48,10 @@ namespace Library.Infrastructure
                     //.AddRoles<IdentityRole>()
                  .AddEntityFrameworkStores<ApplicationDbContext>()
                  .AddDefaultTokenProviders();
+
+            var jwtSettings = new JwtSettings();
+            configuration.Bind(nameof(jwtSettings), jwtSettings);
+            services.AddSingleton(jwtSettings);
 
             services.AddAuthentication(options =>
             {
@@ -63,54 +65,18 @@ namespace Library.Infrastructure
                 options.RequireHttpsMetadata = false;
                 options.TokenValidationParameters = new TokenValidationParameters()
                 {
+                    //IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("VBy0OLlMQG6VVVp1OH7Xzyr7gHuw1qvUC5dcGt3SBM=)"))
+                    //IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration.GetValue<string>("AppSettings:Secret")))
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtSettings.Secret)),
                     ValidateIssuer = true,
                     ValidateAudience = true,
                     ValidAudience = "http://localhost:51044",
                     ValidIssuer = "http://localhost:51044",
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("VBy0OLlMQG6VVVp1OH7Xzyr7gHuw1qvUC5dcGt3SBM=)"))
+                    RequireExpirationTime = true,
+                    ValidateLifetime = true
                 };
             });
-
-
-            /*
-            if (environment.IsEnvironment("Test"))
-            {
-                services.AddIdentityServer()
-                    .AddApiAuthorization<ApplicationUser, ApplicationDbContext>(options =>
-                    {
-                        options.Clients.Add(new Client
-                        {
-                            ClientId = "Library.IntegrationTests",
-                            AllowedGrantTypes = { GrantType.ResourceOwnerPassword },
-                            ClientSecrets = { new Secret("secret".Sha256()) },
-                            AllowedScopes = { "Library.API", "openid", "profile" }
-                        });
-                    }).AddTestUsers(new List<TestUser>
-                    {
-                        new TestUser
-                        {
-                            SubjectId = "f26da293-02fb-4c90-be75-e4aa51e0bb17",
-                            Username = "mahfuz.ali@hitachivantara.com",
-                            Password = "Library!1",
-                            Claims = new List<Claim>
-                            {
-                                new Claim(JwtClaimTypes.Email, "mahfuz.ali@hitachivantara.com")
-                            }
-                        }
-                    });
-            }
-            else
-            {
-                services.AddIdentityServer()
-                    .AddApiAuthorization<ApplicationUser, ApplicationDbContext>();
-
-                services.AddTransient<IDateTime, DateTimeService>();
-                services.AddTransient<IIdentityService, IdentityService>();
-            }
-            */
-
-            //services.AddIdentityServer()
-                //.AddApiAuthorization<ApplicationUser, ApplicationDbContext>();
 
 
             services.AddTransient<IDateTime, DateTimeService>();

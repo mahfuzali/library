@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 namespace Library.API.Controllers
 {
     [ApiExplorerSettings(IgnoreApi = true)]
+
     public class OidcConfigurationController : Controller
     {
         private readonly ILogger<OidcConfigurationController> logger;

@@ -110,7 +110,7 @@ namespace Library.API.Controllers
 
             if (!TryValidateModel(bookEntity))
             {
-                return ValidationProblem();
+                return ValidationProblem(ModelState);
             }
 
             _repositoryWrapper.Books.Add(bookEntity);
@@ -139,15 +139,19 @@ namespace Library.API.Controllers
         [HttpPut("{bookId}")]
         public async Task<IActionResult> UpdateBook(Guid bookId, BookForUpdateDto book)
         {
-            Book checkBookExists = _repositoryWrapper.Books.Get(bookId);
+            //Book checkBookExists = _repositoryWrapper.Books.Get(bookId);
 
-            if (checkBookExists == null)
-            {
-                return NotFound();
-            }
+            //if (checkBookExists == null)
+            //{
+            //    return NotFound();
+            //}
 
             var bookEntity = await _repositoryWrapper.Books.GetBook(bookId);
 
+            if (!TryValidateModel(bookEntity))
+            {
+                return ValidationProblem(ModelState);
+            }
 
             if (bookEntity == null)
             {
@@ -198,6 +202,10 @@ namespace Library.API.Controllers
             return Ok();
         }
 
+        /// <summary>
+        /// Deletes a specific Book.
+        /// </summary>
+        /// <param name="bookId"></param>  
         [HttpDelete("{bookId}")]
         public IActionResult DeleteBook(Guid bookId)
         {

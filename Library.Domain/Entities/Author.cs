@@ -21,7 +21,7 @@ namespace Library.Domain.Entities
         [Required]
         public DateTimeOffset DateOfBirth { get; set; }
 
-        [Required]
+        //[Required]
         public DateTimeOffset DateOfDeath { get; set; }
 
         public ICollection<BookAuthor> BookAuthors { get; set; }

@@ -106,6 +106,52 @@ namespace Library.FunctionalTests.Api
         }
 
         [Fact]
+        public async Task BadRequestAddABookTest() 
+        {
+            BookForCreationDto newBook = new BookForCreationDto()
+            {
+                //Title = "Algorithms to Live by: The Computer Science of Human Decisions",
+                Description = "A fascinating exploration of how insights from computer algorithms can be applied to our everyday lives, helping to solve common decision-making problems and illuminate the workings of the human mind",
+                Publisher = "Macmillan USA",
+                ISBN = "978-1627790369",
+                Genres = new List<string>()
+                {
+                    "Psychology",
+                    "Business Decision Making Skills",
+                    "Maths"
+                },
+                Language = "English",
+                Authors = new List<AuthorForCreationDto>()
+                {
+                    new AuthorForCreationDto()
+                    {
+                        FirstName = "Brian",
+                        LastName = "Christian",
+                        DateOfBirth = DateTimeOffset.Parse("1984-07-28T00:00:00.000Z")
+                    },
+                    new AuthorForCreationDto()
+                    {
+                        FirstName = "Tom",
+                        LastName = "Griffiths",
+                        DateOfBirth = DateTimeOffset.Parse("1987-08-02T00:00:00.000Z")
+                    }
+                }
+            };
+
+            var json = JsonConvert.SerializeObject(newBook);
+            var stringContent = new StringContent(json, UnicodeEncoding.UTF8, "application/json");
+
+            _client.DefaultRequestHeaders.Authorization =
+                            new AuthenticationHeaderValue("Bearer", await GetJwtAsync());
+
+            var response = await _client.PostAsync("/api/books", stringContent);
+            
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+
+        }
+
+
+        [Fact]
         public async Task UpdateABookTest()
         {
             BookForUpdateDto book = new BookForUpdateDto()
@@ -140,6 +186,44 @@ namespace Library.FunctionalTests.Api
             Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
         }
 
+
+        [Fact]
+        public async Task BadRequestUpdateABookTest()
+        {
+            BookForUpdateDto book = new BookForUpdateDto()
+            {
+                //Title = SeedData.book1.Title,
+                //Description = "Test Description",
+                Publisher = SeedData.book1.Publisher,
+                ISBN = SeedData.book1.ISBN,
+                Genres = SeedData.book1.Genres.Select(g => g.Name).ToList(),
+                Language = SeedData.book1.Language,
+                Authors = new List<AuthorForCreationDto>()
+                {
+                    new AuthorForCreationDto()
+                    {
+                        FirstName = SeedData.author1.FirstName,
+                        LastName = SeedData.author1.LastName,
+                        DateOfBirth = SeedData.author1.DateOfBirth
+                    }
+                }
+            };
+
+            var json = JsonConvert.SerializeObject(book);
+            var stringContent = new StringContent(json, UnicodeEncoding.UTF8, "application/json");
+
+            _client.DefaultRequestHeaders.Authorization =
+                            new AuthenticationHeaderValue("Bearer", await GetJwtAsync());
+
+            string bookId = SeedData.book1.BookId.ToString();
+            var response = await _client.PutAsync($"/api/books/{bookId}", stringContent);
+            //response.EnsureSuccessStatusCode();
+
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
+
+
         [Fact]
         public async Task DeleteABookTest()
         {
@@ -173,7 +257,7 @@ namespace Library.FunctionalTests.Api
         public async Task AddsBookCollectionsTest()
         {
 
-            BookForCreationDto book1 = new BookForCreationDto()
+            BookForManipulationDto book1 = new BookForCreationDto()
             {
                 Title = "Algorithms to Live by: The Computer Science of Human Decisions",
                 Description = "A fascinating exploration of how insights from computer algorithms can be applied to our everyday lives, helping to solve common decision-making problems and illuminate the workings of the human mind",
@@ -202,7 +286,7 @@ namespace Library.FunctionalTests.Api
                     }
                 }
             };
-            BookForCreationDto book2 = new BookForCreationDto()
+            BookForManipulationDto book2 = new BookForCreationDto()
             {
                 Title = "Example title",
                 Description = "Example description",
@@ -224,7 +308,7 @@ namespace Library.FunctionalTests.Api
                 }
             };
 
-            var json = JsonConvert.SerializeObject(new List<BookForCreationDto>() { book1, book2 });
+            var json = JsonConvert.SerializeObject(new List<BookForManipulationDto>() { book1, book2 });
             var stringContent = new StringContent(json, UnicodeEncoding.UTF8, "application/json");
 
             _client.DefaultRequestHeaders.Authorization =
