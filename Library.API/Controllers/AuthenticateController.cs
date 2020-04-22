@@ -21,12 +21,14 @@ namespace Library.API.Controllers
     {
         private UserManager<ApplicationUser> _userManager;
 
-        public AuthenticateController(UserManager<ApplicationUser> userManager)
+        private IConfiguration _configuration;
+        public AuthenticateController(UserManager<ApplicationUser> userManager, IConfiguration configuration)
         {
             _userManager = userManager;
+            _configuration = configuration;
         }
 
-        [HttpPost(Name = "Login")]
+        [HttpPost("login", Name = "Login")]
         public async Task<IActionResult> Login(LoginModel model)
         {
             var user = await _userManager.FindByNameAsync(model.Username);
@@ -38,8 +40,9 @@ namespace Library.API.Controllers
                     new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
                 };
-
-                var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("VBy0OLlMQG6VVVp1OH7Xzyr7gHuw1qvUC5dcGt3SBM=)"));
+                //VBy0OLlMQG6VVVp1OH7Xzyr7gHuw1qvUC5dcGt3SBM=)
+                //var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("VBy0OLlMQG6VVVp1OH7Xzyr7gHuw1qvUC5dcGt3SBM=)"));
+                var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration.GetValue<string>("JwtSettings:Secret")));
 
                 var token = new JwtSecurityToken(
                     issuer: "http://localhost:51044",
@@ -58,18 +61,24 @@ namespace Library.API.Controllers
             return Unauthorized();
         }
 
-        //[HttpPost]
-        //[Route("register")]
-        //public async Task<IActionResult> Register(RegisterModel model)
-        //{
-        //    var newUser = new ApplicationUser { 
-        //        UserName = model.Username, 
-        //        SecurityStamp = Guid.NewGuid().ToString(), 
-        //        Email = model.Email };
+        [HttpPost("register", Name = "Register")]
+        public async Task<IActionResult> Register(RegisterModel model)
+        {
+            if (model == null)
+            {
+                throw new ArgumentNullException(nameof(model));
+            }
+            var newUser = new ApplicationUser
+            {
+                UserName = model.Username,
+                SecurityStamp = Guid.NewGuid().ToString(),
+                Email = model.Email
+            };
 
-        //    var createUser = await _userManager.CreateAsync(newUser, model.Password);
+            await _userManager.CreateAsync(newUser, model.Password);
 
-        //    return Ok();
-        //}
+            //return CreatedAtRoute("Login", new LoginModel() { Username = model.Username, Password = model.Password});
+            return Ok();
+        }
     }
 }

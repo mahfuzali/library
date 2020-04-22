@@ -17,6 +17,8 @@ using System.Linq;
 using System.Collections.Generic;
 using Swashbuckle.AspNetCore.Swagger;
 using Microsoft.OpenApi.Models;
+using System.Reflection;
+using System.IO;
 
 namespace Library.API
 {
@@ -106,7 +108,7 @@ namespace Library.API
                     TermsOfService = new Uri("https://example.com/terms"),
                     Contact = new OpenApiContact
                     {
-                        Name = "Shayne Boyer",
+                        Name = "Mahfuz Ali",
                         Email = string.Empty,
                         Url = new Uri("https://twitter.com/spboyer"),
                     },
@@ -144,6 +146,12 @@ namespace Library.API
                         new List<string>()
                     }
                 });
+
+                // Set the comments path for the Swagger JSON and UI.
+                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                c.IncludeXmlComments(xmlPath);
+
             });
 
         #endregion

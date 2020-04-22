@@ -46,6 +46,15 @@ namespace Library.API.Controllers
                 throw new ArgumentNullException(nameof(repositoryWrapper));
         }
 
+
+        /// <summary>
+        /// Returns all books.
+        /// </summary>
+        /// <remarks>
+        /// Can also take search parameters.
+        /// </remarks>
+        /// <param name="booksResourceParameters">The first name to search for</param>
+        /// <returns>List of books</returns>
         [HttpGet(Name = "GetBooks")]
         [HttpHead]
         public IActionResult GetBooks(
@@ -135,6 +144,7 @@ namespace Library.API.Controllers
                 new { bookId = bookToReturn.BookId },
                 bookToReturn);
         }
+
 
         [HttpPut("{bookId}")]
         public async Task<IActionResult> UpdateBook(Guid bookId, BookForUpdateDto book)
