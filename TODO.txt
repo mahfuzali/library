@@ -5,3 +5,6 @@ https://www.youtube.com/watch?v=YzOBrVlthMk
 
 Microservice Architecture with ASP.NET Core
 https://www.youtube.com/watch?v=RyHDWlIq6vI
+
+
+https://github.com/Elfocrash/Youtube.AspNetCoreTutorial

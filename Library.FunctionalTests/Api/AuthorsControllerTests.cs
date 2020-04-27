@@ -13,6 +13,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit;
+using Xunit.Extensions.Ordering;
 
 namespace Library.FunctionalTests.Api
 {
@@ -34,7 +35,7 @@ namespace Library.FunctionalTests.Api
             var stringResponse = await response.Content.ReadAsStringAsync();
             var result = JsonConvert.DeserializeObject<IEnumerable<AuthorDto>>(stringResponse).ToList();
 
-            Assert.Equal(4, result.Count());
+            Assert.Equal(6, result.Count());
         }
 
         [Fact]
@@ -52,40 +53,6 @@ namespace Library.FunctionalTests.Api
 
             Assert.NotNull(result);
             Assert.Equal(SeedData.author3.FirstName + " " + SeedData.author3.LastName, result.Name);
-        }
-
-        [Fact]
-        public async Task ReturnsBooksOfAnAuthorTest()
-        {
-            _client.DefaultRequestHeaders.Authorization =
-                            new AuthenticationHeaderValue("Bearer", await GetJwtAsync());
-
-            string authorId = SeedData.harryPotterAuthor.AuthorId.ToString();
-            var response = await _client.GetAsync($"/api/authors/{authorId}/books");
-            response.EnsureSuccessStatusCode();
-            var stringResponse = await response.Content.ReadAsStringAsync();
-            var result = JsonConvert.DeserializeObject<IEnumerable<BookViewModel>>(stringResponse);
-
-
-            Assert.NotNull(result);
-            Assert.Equal(7, result.Count());
-        }
-
-        [Fact]
-        public async Task ReturnsABookOfAnAuthorTest()
-        {
-            _client.DefaultRequestHeaders.Authorization =
-                            new AuthenticationHeaderValue("Bearer", await GetJwtAsync());
-
-            string authorId = SeedData.harryPotterAuthor.AuthorId.ToString();
-            string bookId = SeedData.harryPotterBook1.BookId.ToString();
-            var response = await _client.GetAsync($"/api/authors/{authorId}/books/{bookId}");
-            response.EnsureSuccessStatusCode();
-            var stringResponse = await response.Content.ReadAsStringAsync();
-            var result = JsonConvert.DeserializeObject<BookViewModel>(stringResponse);
-
-            Assert.NotNull(result);
-            Assert.Equal(SeedData.harryPotterBook1.Title, result.Title);
         }
 
         [Fact]
@@ -173,5 +140,43 @@ namespace Library.FunctionalTests.Api
 
             Assert.Equal(2, result.Count());
         }
+
+
+
+        [Fact]
+        public async Task ReturnsBooksOfAnAuthorTest()
+        {
+            _client.DefaultRequestHeaders.Authorization =
+                            new AuthenticationHeaderValue("Bearer", await GetJwtAsync());
+
+            string authorId = SeedData.harryPotterAuthor.AuthorId.ToString();
+            var response = await _client.GetAsync($"/api/authors/{authorId}/books");
+            response.EnsureSuccessStatusCode();
+            var stringResponse = await response.Content.ReadAsStringAsync();
+            var result = JsonConvert.DeserializeObject<IEnumerable<BookViewModel>>(stringResponse);
+
+
+            Assert.NotNull(result);
+            Assert.Equal(7, result.Count());
+        }
+
+        [Fact]
+        public async Task ReturnsABookOfAnAuthorTest()
+        {
+            _client.DefaultRequestHeaders.Authorization =
+                            new AuthenticationHeaderValue("Bearer", await GetJwtAsync());
+
+            string authorId = SeedData.harryPotterAuthor.AuthorId.ToString();
+            string bookId = SeedData.harryPotterBook1.BookId.ToString();
+            var response = await _client.GetAsync($"/api/authors/{authorId}/books/{bookId}");
+            response.EnsureSuccessStatusCode();
+            var stringResponse = await response.Content.ReadAsStringAsync();
+            var result = JsonConvert.DeserializeObject<BookViewModel>(stringResponse);
+
+            Assert.NotNull(result);
+            Assert.Equal(SeedData.harryPotterBook1.Title, result.Title);
+        }
+
+
     }
 }

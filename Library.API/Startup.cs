@@ -96,7 +96,7 @@ namespace Library.API
                 options.SuppressModelStateInvalidFilter = true;
             });
 
-        #region Swagger Documentation
+            #region Swagger Documentation
 
             services.AddSwaggerGen(c =>
             {
@@ -154,7 +154,7 @@ namespace Library.API
 
             });
 
-        #endregion
+            #endregion
 
         }
 

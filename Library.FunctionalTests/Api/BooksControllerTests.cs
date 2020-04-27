@@ -253,74 +253,74 @@ namespace Library.FunctionalTests.Api
             Assert.Equal(2, result.Count());
         }
 
-        [Fact]
-        public async Task AddsBookCollectionsTest()
-        {
+        //[Fact]
+        //public async Task AddsBookCollectionsTest()
+        //{
 
-            BookForManipulationDto book1 = new BookForCreationDto()
-            {
-                Title = "Algorithms to Live by: The Computer Science of Human Decisions",
-                Description = "A fascinating exploration of how insights from computer algorithms can be applied to our everyday lives, helping to solve common decision-making problems and illuminate the workings of the human mind",
-                Publisher = "Macmillan USA",
-                ISBN = "978-1627790369",
-                Genres = new List<string>()
-                {
-                    "Psychology",
-                    "Business Decision Making Skills",
-                    "Maths"
-                },
-                Language = "English",
-                Authors = new List<AuthorForCreationDto>()
-                {
-                    new AuthorForCreationDto()
-                    {
-                        FirstName = "Brian",
-                        LastName = "Christian",
-                        DateOfBirth = DateTimeOffset.Parse("1984-07-28T00:00:00.000Z")
-                    },
-                    new AuthorForCreationDto()
-                    {
-                        FirstName = "Tom",
-                        LastName = "Griffiths",
-                        DateOfBirth = DateTimeOffset.Parse("1987-08-02T00:00:00.000Z")
-                    }
-                }
-            };
-            BookForManipulationDto book2 = new BookForCreationDto()
-            {
-                Title = "Example title",
-                Description = "Example description",
-                Publisher = "Example publiser",
-                ISBN = "000-0000000000",
-                Genres = new List<string>()
-                {
-                    "Example genre"
-                },
-                Language = "example language",
-                Authors = new List<AuthorForCreationDto>()
-                {
-                    new AuthorForCreationDto()
-                    {
-                        FirstName = "Mahfuz",
-                        LastName = "Ali",
-                        DateOfBirth = DateTimeOffset.Parse("1970-05-28T00:00:00.000Z")
-                    }
-                }
-            };
+        //    BookForManipulationDto book1 = new BookForCreationDto()
+        //    {
+        //        Title = "Algorithms to Live by: The Computer Science of Human Decisions",
+        //        Description = "A fascinating exploration of how insights from computer algorithms can be applied to our everyday lives, helping to solve common decision-making problems and illuminate the workings of the human mind",
+        //        Publisher = "Macmillan USA",
+        //        ISBN = "978-1627790369",
+        //        Genres = new List<string>()
+        //        {
+        //            "Psychology",
+        //            "Business Decision Making Skills",
+        //            "Maths"
+        //        },
+        //        Language = "English",
+        //        Authors = new List<AuthorForCreationDto>()
+        //        {
+        //            new AuthorForCreationDto()
+        //            {
+        //                FirstName = "Brian",
+        //                LastName = "Christian",
+        //                DateOfBirth = DateTimeOffset.Parse("1984-07-28T00:00:00.000Z")
+        //            },
+        //            new AuthorForCreationDto()
+        //            {
+        //                FirstName = "Tom",
+        //                LastName = "Griffiths",
+        //                DateOfBirth = DateTimeOffset.Parse("1987-08-02T00:00:00.000Z")
+        //            }
+        //        }
+        //    };
+        //    BookForManipulationDto book2 = new BookForCreationDto()
+        //    {
+        //        Title = "Example title",
+        //        Description = "Example description",
+        //        Publisher = "Example publiser",
+        //        ISBN = "000-0000000000",
+        //        Genres = new List<string>()
+        //        {
+        //            "Example genre"
+        //        },
+        //        Language = "example language",
+        //        Authors = new List<AuthorForCreationDto>()
+        //        {
+        //            new AuthorForCreationDto()
+        //            {
+        //                FirstName = "Mahfuz",
+        //                LastName = "Ali",
+        //                DateOfBirth = DateTimeOffset.Parse("1970-05-28T00:00:00.000Z")
+        //            }
+        //        }
+        //    };
 
-            var json = JsonConvert.SerializeObject(new List<BookForManipulationDto>() { book1, book2 });
-            var stringContent = new StringContent(json, UnicodeEncoding.UTF8, "application/json");
+        //    var json = JsonConvert.SerializeObject(new List<BookForManipulationDto>() { book1, book2 });
+        //    var stringContent = new StringContent(json, UnicodeEncoding.UTF8, "application/json");
 
-            _client.DefaultRequestHeaders.Authorization =
-                            new AuthenticationHeaderValue("Bearer", await GetJwtAsync());
+        //    _client.DefaultRequestHeaders.Authorization =
+        //                    new AuthenticationHeaderValue("Bearer", await GetJwtAsync());
 
-            var response = await _client.PostAsync($"/api/books/collection", stringContent);
+        //    var response = await _client.PostAsync($"/api/books/collection", stringContent);
 
-            response.EnsureSuccessStatusCode();
-            var stringResponse = await response.Content.ReadAsStringAsync();
-            var result = JsonConvert.DeserializeObject<IEnumerable<BookDto>>(stringResponse).ToList();
+        //    response.EnsureSuccessStatusCode();
+        //    var stringResponse = await response.Content.ReadAsStringAsync();
+        //    var result = JsonConvert.DeserializeObject<IEnumerable<BookDto>>(stringResponse).ToList();
 
-            Assert.Equal(2, result.Count());
-        }
+        //    Assert.Equal(2, result.Count());
+        //}
     }
 }
